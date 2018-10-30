@@ -10,7 +10,7 @@ export type ParseHTMLOptions = {
   end: (text: string) => void,
 }
 
-export type ASTNode = ASTElement | ASTText
+export type ASTNode = ASTElement | ASTExpression | ASTText
 
 export type ASTElement = {
   type: 1;
@@ -19,9 +19,13 @@ export type ASTElement = {
   children: ASTNode[];
 }
 
+export type ASTExpression = {
+  type: 2;
+  expression: string;
+}
+
 export type ASTText = {
   type: 3;
   text: string;
 }
-
 

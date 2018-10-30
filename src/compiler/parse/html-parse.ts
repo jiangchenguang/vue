@@ -6,7 +6,6 @@ const tagNameRE: RegExp = /[a-zA-Z0-9]+/;
 const startTagRE: RegExp = new RegExp(`^<\(${tagNameRE.source}\)>`);
 const endTagRE: RegExp = new RegExp(`^<\/\(${tagNameRE.source}\)>`);
 
-
 const isScriptOrStyle = makeMap("script,style");
 
 export function parseHTML(html: string, options: ParseHTMLOptions) {
@@ -20,16 +19,16 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
       lastPos = html.indexOf("<");
       if (lastPos === 0) {
         // end tag
-        let match = endTagRE.exec(html);
+        let match: RegExpExecArray | startTagMatchResult = endTagRE.exec(html);
         if (match) {
-          parseEndTag(match);
+          handleEndTag(match);
           continue;
         }
 
         // start tag
-        match = startTagRE.exec(html);
+        match = parseStartTag();
         if (match) {
-          parseStartTag(match);
+          handleStartTag(match);
           continue;
         }
 
@@ -59,16 +58,27 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
     html = html.slice(n);
   }
 
-  function parseStartTag(execResult: any[]) {
-    lastTag = execResult[1];
+  function parseStartTag(): startTagMatchResult | undefined {
+    let result: RegExpExecArray = startTagRE.exec(html);
+    if (result) {
+      let match: startTagMatchResult = {
+        tagName: result[1],
+      };
+      advance(result[0].length);
+
+      return match;
+    }
+  }
+
+  function handleStartTag(execResult: startTagMatchResult) {
+    lastTag = execResult.tagName;
     stack.push(lastTag)
     if (options.start) {
       options.start(lastTag);
     }
-    advance(execResult[0].length);
   }
 
-  function parseEndTag(execResult: any[]) {
+  function handleEndTag(execResult: any[]) {
     let tagName = execResult[1];
     if (options.end) {
       options.end(tagName);
@@ -77,4 +87,8 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
     lastTag = stack.length ? stack[stack.length - 1] : undefined;
     advance(execResult[0].length);
   }
+}
+
+type startTagMatchResult = {
+  tagName: string
 }

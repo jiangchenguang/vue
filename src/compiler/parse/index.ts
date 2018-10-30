@@ -1,5 +1,6 @@
 import { parseHTML } from "./html-parse";
-import { ASTElement, ASTNode, ASTText } from "types/compilerOptions";
+import { parseText } from "./text-parse";
+import { ASTElement, ASTExpression, ASTNode, ASTText } from "types/compilerOptions";
 
 export function parse(template: string): ASTElement | undefined {
   let stack: ASTElement[] = []
@@ -34,10 +35,19 @@ export function parse(template: string): ASTElement | undefined {
         console.error("handle txt, but current parent is null!");
         return;
       }
+      let expression: string;
+      let element: ASTText | ASTExpression;
       if (text = text.trim()) {
-        let element: ASTText = {
-          type: 3,
-          text,
+        if (expression = parseText(text)) {
+          element = {
+            type: 2,
+            expression: expression
+          }
+        } else {
+          element = {
+            type: 3,
+            text,
+          }
         }
         currentParent.children.push(element);
       }
