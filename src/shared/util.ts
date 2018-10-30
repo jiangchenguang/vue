@@ -21,3 +21,13 @@ export function hasOwn(obj: object, key: string): boolean {
 export function isPlainObject(obj: any): boolean {
   return toString.call(obj) === "[object Object]";
 }
+
+export function makeMap(str: string): { [index: string]: true } {
+  let map = Object.create(null);
+  let list: string[] = str.split(",");
+  for (let item of list) {
+    map[item.trim()] = true;
+  }
+  return map;
+}
+

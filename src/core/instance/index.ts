@@ -1,5 +1,5 @@
 import { initMixin } from "./init";
-import {stateMixin} from "./state";
+import { stateMixin } from "./state";
 import { lifeCycleMixin } from "./lifeCycle";
 import { ComponentOptions } from "types/options";
 import { Component } from "types/component";
