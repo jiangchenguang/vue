@@ -1,4 +1,4 @@
-import { makeMap } from "src/shared/util";
+import { makeMap, no } from "src/shared/util";
 import { ParseHTMLOptions } from "types/compilerOptions";
 
 
@@ -9,15 +9,17 @@ const endTagRE: RegExp = new RegExp(`^<\/\(${tagNameRE.source}\)>`);
 const isScriptOrStyle = makeMap("script,style");
 
 export function parseHTML(html: string, options: ParseHTMLOptions) {
+  const isUnaryTag = options.isUnaryTag || no;
+
   let stack: string[] = [];
   let lastTag: string;
-  let lastPos: number;
+  let textEnd: number;
   let last: string;
   while (html) {
     last = html;
     if (!lastTag || !isScriptOrStyle[lastTag]) {
-      lastPos = html.indexOf("<");
-      if (lastPos === 0) {
+      textEnd = html.indexOf("<");
+      if (textEnd === 0) {
         // end tag
         let match: RegExpExecArray | startTagMatchResult = endTagRE.exec(html);
         if (match) {
@@ -32,24 +34,36 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
           continue;
         }
 
-      } else if (lastPos > 0) {
+      }
+
+      let text;
+      if (textEnd > 0) {
         // text
-        let text = html.slice(0, lastPos);
+        text = html.slice(0, textEnd);
         if (options.chars) {
           options.chars(text);
           advance(text.length);
           continue;
         }
-      } else {
+      }
+
+      if (textEnd < 0) {
         // not found
+        text = html;
+        html = "";
+      }
+
+      if (options.chars && text){
+        options.chars(text);
       }
 
     } else {
-      // warning
+      // style script
     }
 
     if (last === html) {
       // todo:txt beyond tag, error
+      html = "";
     }
 
   }
@@ -71,10 +85,15 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
   }
 
   function handleStartTag(execResult: startTagMatchResult) {
-    lastTag = execResult.tagName;
-    stack.push(lastTag)
+    // @ts-ignore
+    const unary = isUnaryTag[execResult.tagName];
+    if (!unary) {
+      lastTag = execResult.tagName;
+      stack.push(lastTag);
+    }
+
     if (options.start) {
-      options.start(lastTag);
+      options.start(execResult.tagName, unary);
     }
   }
 

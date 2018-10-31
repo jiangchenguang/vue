@@ -1,14 +1,24 @@
 import { parseHTML } from "./html-parse";
 import { parseText } from "./text-parse";
-import { ASTElement, ASTExpression, ASTNode, ASTText } from "types/compilerOptions";
+import { ASTElement, ASTExpression, ASTNode, ASTText, CompilerOptions } from "types/compilerOptions";
+import { no } from "src/shared/util";
 
-export function parse(template: string): ASTElement | undefined {
+let platformGetTagNamespace: any;
+
+export function parse(
+  template: string,
+  options: CompilerOptions
+): ASTElement | undefined {
+  platformGetTagNamespace = options.getTagNamespace || no;
+
+
   let stack: ASTElement[] = []
   let root: ASTElement | undefined;
   let currentParent: ASTElement | undefined;
 
   parseHTML(template.trim(), {
-    start(tagName: string) {
+    isUnaryTag: options.isUnaryTag,
+    start(tagName: string, unary: boolean) {
       let element: ASTElement = {
         type: 1,
         tag: tagName,
@@ -16,11 +26,24 @@ export function parse(template: string): ASTElement | undefined {
         children: [],
       }
 
+      const ns = (currentParent && currentParent.ns) || platformGetTagNamespace(tagName);
+
       if (!root) {
         root = element;
       }
-      stack.push(element);
-      currentParent = element;
+
+      if (currentParent) {
+        currentParent.children.push(element);
+      }
+
+      if(ns) {
+        element.ns = ns;
+      }
+
+      if (!unary) {
+        currentParent = element;
+        stack.push(element);
+      }
     },
     end(tagName: string) {
       if (!stack.length) {
@@ -32,7 +55,7 @@ export function parse(template: string): ASTElement | undefined {
     },
     chars(text: string) {
       if (!currentParent) {
-        console.error("handle txt, but current parent is null!");
+        console.error("Component template requires a root element, rather than just text.");
         return;
       }
       let expression: string;

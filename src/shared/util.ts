@@ -31,3 +31,7 @@ export function makeMap(str: string): { [index: string]: true } {
   return map;
 }
 
+export function no() {
+  return false;
+}
+
