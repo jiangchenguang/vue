@@ -4,7 +4,25 @@ import { ParseHTMLOptions } from "types/compilerOptions";
 
 const tagNameRE: RegExp = /[a-zA-Z0-9]+/;
 const startTagRE: RegExp = new RegExp(`^<\(${tagNameRE.source}\)>`);
+const startTagOpenRE = new RegExp(`^<\(${tagNameRE.source}\)`);
+const startTagCloseRE = new RegExp(`^\s*(\/?)>`);
 const endTagRE: RegExp = new RegExp(`^<\/\(${tagNameRE.source}\)>`);
+
+const singleAttrIdentifier = /([^\s"'<>/=]+)/
+const singleAttrAssign = /(?:=)/
+const singleAttrValues = [
+  // attr value double quotes
+  /"([^"]*)"+/.source,
+  // attr value, single quotes
+  /'([^']*)'+/.source,
+  // attr value, no quotes
+  /([^\s"'=<>`]+)/.source
+]
+const attribute = new RegExp(
+  '^\\s*' + singleAttrIdentifier.source +
+  '(?:\\s*(' + singleAttrAssign.source + ')' +
+  '\\s*(?:' + singleAttrValues.join('|') + '))?'
+)
 
 const isScriptOrStyle = makeMap("script,style");
 
@@ -73,14 +91,24 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
   }
 
   function parseStartTag(): startTagMatchResult | undefined {
-    let result: RegExpExecArray = startTagRE.exec(html);
+    let result: RegExpExecArray = startTagOpenRE.exec(html);
     if (result) {
       let match: startTagMatchResult = {
         tagName: result[1],
+        attrs: []
       };
       advance(result[0].length);
+      let end, attr;
+      while (!(end = startTagCloseRE.exec(html)) && (attr = attribute.exec(html))) {
+        advance(attr[0].length);
+        match.attrs.push(attr);
+      }
 
-      return match;
+      if (end){
+        advance(end[0].length);
+        return match;
+      }
+
     }
   }
 
@@ -92,12 +120,20 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
       stack.push(lastTag);
     }
 
+    let attrs = [];
+    for (let attr of execResult.attrs){
+      attrs.push({
+        name: attr[1],
+        value: attr[3] || attr[4] || attr[5] || ""
+      });
+    }
+
     if (options.start) {
-      options.start(execResult.tagName, unary);
+      options.start(execResult.tagName, attrs, unary);
     }
   }
 
-  function handleEndTag(execResult: any[]) {
+  function handleEndTag(execResult: RegExpExecArray) {
     let tagName = execResult[1];
     if (options.end) {
       options.end(tagName);
@@ -109,5 +145,6 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
 }
 
 type startTagMatchResult = {
-  tagName: string
+  tagName: string,
+  attrs: RegExpExecArray[],
 }
