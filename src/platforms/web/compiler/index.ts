@@ -1,10 +1,16 @@
 import {
   isUnaryTag,
 } from "./util";
-import { getTagNamespace } from "../util/index";
+import modules from "./modules/index";
+import {
+  getTagNamespace,
+  mustUseProp,
+} from "../util/index";
 import { CompilerOptions } from "types/compilerOptions";
 
 export const baseOptions: CompilerOptions = {
+  modules,
   isUnaryTag,
+  mustUseProp,
   getTagNamespace,
 }

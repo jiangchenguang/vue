@@ -2,7 +2,7 @@ import { makeMap, no } from "src/shared/util";
 import { ParseHTMLOptions } from "types/compilerOptions";
 
 
-const tagNameRE: RegExp = /[a-zA-Z0-9]+/;
+const tagNameRE: RegExp = /[a-zA-Z0-9-]+/;
 const startTagRE: RegExp = new RegExp(`^<\(${tagNameRE.source}\)>`);
 const startTagOpenRE = new RegExp(`^<\(${tagNameRE.source}\)`);
 const startTagCloseRE = new RegExp(`^\s*(\/?)>`);
@@ -54,15 +54,21 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
 
       }
 
-      let text;
+      let text, rest;
       if (textEnd > 0) {
         // text
-        text = html.slice(0, textEnd);
-        if (options.chars) {
-          options.chars(text);
-          advance(text.length);
-          continue;
+        rest = html.slice(textEnd);
+        while (
+          !startTagOpenRE.test(rest) &&
+          !endTagRE.test(rest)
+          ) {
+          let find = rest.indexOf("<", 1);
+          if (find < 0) break;
+          textEnd += find;
+          rest = html.slice(textEnd);
         }
+        text = html.slice(0, textEnd);
+        advance(text.length);
       }
 
       if (textEnd < 0) {
@@ -71,7 +77,7 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
         html = "";
       }
 
-      if (options.chars && text){
+      if (options.chars && text) {
         options.chars(text);
       }
 
@@ -104,7 +110,7 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
         match.attrs.push(attr);
       }
 
-      if (end){
+      if (end) {
         advance(end[0].length);
         return match;
       }
@@ -121,7 +127,7 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
     }
 
     let attrs = [];
-    for (let attr of execResult.attrs){
+    for (let attr of execResult.attrs) {
       attrs.push({
         name: attr[1],
         value: attr[3] || attr[4] || attr[5] || ""
@@ -139,7 +145,7 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
       options.end(tagName);
     }
     stack.length -= 1;
-    lastTag = stack.length ? stack[stack.length - 1] : undefined;
+    lastTag = stack[stack.length - 1];
     advance(execResult[0].length);
   }
 }

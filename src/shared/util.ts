@@ -35,3 +35,10 @@ export function no() {
   return false;
 }
 
+export function extend(to: any, from: any) {
+  for (const key in from) {
+    to[key] = from[key];
+  }
+  return to;
+}
+
