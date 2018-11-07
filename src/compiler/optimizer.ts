@@ -5,12 +5,13 @@ let isStaticKey: (value: string) => boolean;
 let isPlatformReservedTag: any;
 
 export function optimize(root: ASTElement, options: CompilerOptions) {
+  if (!root) return;
   isStaticKey = makeMap(`type,tag,attrsList,attrsMap,parent,children,attrs`);
-  isPlatformReservedTag = options.isReservedTag || no();
+  isPlatformReservedTag = options.isReservedTag || no;
 
   makeStatic(root);
 
-  makeStaticRoot(root);
+  makeStaticRoot(root, false);
 }
 
 function makeStatic(node: ASTNode) {
@@ -33,8 +34,11 @@ function makeStatic(node: ASTNode) {
 }
 
 
-function makeStaticRoot(node: ASTNode) {
+function makeStaticRoot(node: ASTNode, isInFor: boolean) {
   if (node.type === 1) {
+    if (node.static) {
+      node.staticInFor = isInFor;
+    }
 
     // 只有在子节点个数较多的情况下才置 staticRoot
     // 排除只有一个静态文本子节点的情况，怕不合算
@@ -48,20 +52,20 @@ function makeStaticRoot(node: ASTNode) {
 
     if (node.children.length) {
       for (let child of node.children) {
-        makeStaticRoot(child);
+        makeStaticRoot(child, isInFor || !!node.for);
       }
     }
 
     if (node.ifConditions) {
-      walkThroughIfConditionBlocks(node.ifConditions);
+      walkThroughIfConditionBlocks(node.ifConditions, isInFor);
     }
   }
 }
 
-function walkThroughIfConditionBlocks(conditions: { exp: string, block: ASTElement }[]) {
+function walkThroughIfConditionBlocks(conditions: { exp: string, block: ASTElement }[], isInFor: boolean) {
   // 跳过第一个
   for (let i = 1, l = conditions.length; i < l; i++) {
-    makeStaticRoot(conditions[i].block);
+    makeStaticRoot(conditions[i].block, isInFor);
   }
 }
 

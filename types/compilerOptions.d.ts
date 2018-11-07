@@ -43,6 +43,7 @@ export type ASTElement = {
   iterator2?: string;
   key?: string;
 
+  ref?: string;
   slotName?: string;
   slotTarget?: string;
 
@@ -61,6 +62,7 @@ export type ASTElement = {
   hasBindings?: true;
   static?: boolean;
   staticRoot?: boolean;
+  staticInFor?: boolean;
 }
 
 export type ASTExpression = {

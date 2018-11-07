@@ -53,6 +53,7 @@ export function parse(
       processOnce(element);
       processKey(element);
 
+      processRef(element);
       processSlot(element);
       processComponent(element);
       for (let transform of tranforms) {
@@ -241,6 +242,13 @@ function processKey(el: ASTElement) {
       console.error(`<template> cannot be keyed. Place the key on real elements instead.`)
     }
     el.key = exp;
+  }
+}
+
+function processRef(el: ASTElement) {
+  let ref = getBindAttr(el, "ref");
+  if (ref) {
+    el.ref = ref;
   }
 }
 
