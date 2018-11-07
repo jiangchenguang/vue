@@ -234,7 +234,6 @@ function addIfConditions(el: ASTElement, condition: { exp: string; block: ASTEle
   el.ifConditions.push(condition)
 }
 
-
 function processKey(el: ASTElement) {
   const exp = getBindAttr(el, "key");
   if (exp) {
@@ -251,7 +250,9 @@ function processSlot(el: ASTElement) {
     el.slotName = getBindAttr(el, "name");
   } else {
     const slotTarget = getBindAttr(el, "slot");
-    el.slotTarget = slotTarget === '""' ? '"default"' : slotTarget;
+    if (slotTarget) {
+      el.slotTarget = slotTarget === '""' ? '"default"' : slotTarget;
+    }
   }
 }
 
@@ -275,6 +276,7 @@ function processAttrs(el: ASTElement) {
       name = attr.name;
       value = attr.value;
       if (dirRE.test(name)) {
+        el.hasBindings = true;
         let modifies = parseModifies(name);
         if (modifies) {
           name = name.replace(modifyRE, "");

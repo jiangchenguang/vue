@@ -3,7 +3,6 @@ import { ParseHTMLOptions } from "types/compilerOptions";
 
 
 const tagNameRE: RegExp = /[a-zA-Z0-9-]+/;
-const startTagRE: RegExp = new RegExp(`^<\(${tagNameRE.source}\)>`);
 const startTagOpenRE = new RegExp(`^<\(${tagNameRE.source}\)`);
 const startTagCloseRE = new RegExp(`^\s*(\/?)>`);
 const endTagRE: RegExp = new RegExp(`^<\/\(${tagNameRE.source}\)>`);
@@ -35,7 +34,7 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
   let last: string;
   while (html) {
     last = html;
-    if (!lastTag || !isScriptOrStyle[lastTag]) {
+    if (!lastTag || !isScriptOrStyle(lastTag)) {
       textEnd = html.indexOf("<");
       if (textEnd === 0) {
         // end tag

@@ -4,8 +4,9 @@ type CompilerModule = {
 
 export type CompilerOptions = {
   modules: CompilerModule[],
-  isUnaryTag: { [index: string]: true },
+  isUnaryTag: (value: string) => boolean,
   mustUseProp: (tag: string, attr: string, type?: string) => boolean,
+  isReservedTag: (tag: string) => boolean,
   getTagNamespace: (tag: string) => string | undefined,
 }
 
@@ -14,7 +15,7 @@ export type ParseHTMLOptions = {
   chars: (tagName: string) => void,
   start: (tagName: string, attrs: { name: string; value: string }[], unary: boolean) => void,
   end: (text: string) => void,
-  isUnaryTag: { [index: string]: true },
+  isUnaryTag: (value: string) => boolean,
 }
 
 export type ASTNode = ASTElement | ASTExpression | ASTText
@@ -57,15 +58,20 @@ export type ASTElement = {
   directives?: { name: string, arg?: string, value?: string, modifies?: { [index: string]: true } }[];
 
   ns?: string;
+  hasBindings?: true;
+  static?: boolean;
+  staticRoot?: boolean;
 }
 
 export type ASTExpression = {
   type: 2;
   expression: string;
+  static?: boolean;
 }
 
 export type ASTText = {
   type: 3;
   text: string;
+  static?: boolean;
 }
 
