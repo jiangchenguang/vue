@@ -53,6 +53,8 @@ export function parse(
       processOnce(element);
       processKey(element);
 
+      element.plain = !element.key && !attrs.length;
+
       processRef(element);
       processSlot(element);
       processComponent(element);

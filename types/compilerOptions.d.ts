@@ -20,6 +20,7 @@ export type ParseHTMLOptions = {
 
 export type ASTNode = ASTElement | ASTExpression | ASTText
 
+export type ASTIfConditions = { exp: string, block: ASTElement }[];
 export type ASTElement = {
   type: 1;
   tag: string;
@@ -33,9 +34,10 @@ export type ASTElement = {
   once?: true;
 
   if?: string;
+  ifProcessed?: boolean;
   elseif?: string;
   else?: true;
-  ifConditions?: { exp: string, block: ASTElement }[];
+  ifConditions?: ASTIfConditions;
 
   for?: string;
   alias?: string;
@@ -59,6 +61,7 @@ export type ASTElement = {
   directives?: { name: string, arg?: string, value?: string, modifies?: { [index: string]: true } }[];
 
   ns?: string;
+  plain?: boolean;
   hasBindings?: true;
   static?: boolean;
   staticRoot?: boolean;
