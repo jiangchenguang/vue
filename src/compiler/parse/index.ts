@@ -53,6 +53,9 @@ export function parse(
       processOnce(element);
       processKey(element);
 
+      element.plain = !element.key && !attrs.length;
+
+      processRef(element);
       processSlot(element);
       processComponent(element);
       for (let transform of tranforms) {
@@ -234,7 +237,6 @@ function addIfConditions(el: ASTElement, condition: { exp: string; block: ASTEle
   el.ifConditions.push(condition)
 }
 
-
 function processKey(el: ASTElement) {
   const exp = getBindAttr(el, "key");
   if (exp) {
@@ -245,13 +247,22 @@ function processKey(el: ASTElement) {
   }
 }
 
+function processRef(el: ASTElement) {
+  let ref = getBindAttr(el, "ref");
+  if (ref) {
+    el.ref = ref;
+  }
+}
+
 function processSlot(el: ASTElement) {
   // todo: why not use getAndRemoveAttr?
   if (el.tag === "slot") {
     el.slotName = getBindAttr(el, "name");
   } else {
     const slotTarget = getBindAttr(el, "slot");
-    el.slotTarget = slotTarget === '""' ? '"default"' : slotTarget;
+    if (slotTarget) {
+      el.slotTarget = slotTarget === '""' ? '"default"' : slotTarget;
+    }
   }
 }
 
@@ -275,6 +286,7 @@ function processAttrs(el: ASTElement) {
       name = attr.name;
       value = attr.value;
       if (dirRE.test(name)) {
+        el.hasBindings = true;
         let modifies = parseModifies(name);
         if (modifies) {
           name = name.replace(modifyRE, "");

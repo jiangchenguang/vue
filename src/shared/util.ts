@@ -22,14 +22,14 @@ export function isPlainObject(obj: any): boolean {
   return toString.call(obj) === "[object Object]";
 }
 
-export function makeMap(str: string): { [index: string]: true } {
+export function makeMap(str: string): (val: string) => boolean {
   let map = Object.create(null);
   let list: string[] = str.split(",");
-  for (let item of list) {
-    map[item.trim()] = true;
-  }
-  return map;
+  list.forEach(item => map[item.trim()] = true);
+  return target => map[target];
 }
+
+export const isBuildInTag = makeMap(`slot,component`);
 
 export function no() {
   return false;

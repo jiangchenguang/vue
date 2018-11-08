@@ -4,8 +4,9 @@ type CompilerModule = {
 
 export type CompilerOptions = {
   modules: CompilerModule[],
-  isUnaryTag: { [index: string]: true },
+  isUnaryTag: (value: string) => boolean,
   mustUseProp: (tag: string, attr: string, type?: string) => boolean,
+  isReservedTag: (tag: string) => boolean,
   getTagNamespace: (tag: string) => string | undefined,
 }
 
@@ -14,11 +15,12 @@ export type ParseHTMLOptions = {
   chars: (tagName: string) => void,
   start: (tagName: string, attrs: { name: string; value: string }[], unary: boolean) => void,
   end: (text: string) => void,
-  isUnaryTag: { [index: string]: true },
+  isUnaryTag: (value: string) => boolean,
 }
 
 export type ASTNode = ASTElement | ASTExpression | ASTText
 
+export type ASTIfConditions = { exp: string, block: ASTElement }[];
 export type ASTElement = {
   type: 1;
   tag: string;
@@ -32,9 +34,10 @@ export type ASTElement = {
   once?: true;
 
   if?: string;
+  ifProcessed?: boolean;
   elseif?: string;
   else?: true;
-  ifConditions?: { exp: string, block: ASTElement }[];
+  ifConditions?: ASTIfConditions;
 
   for?: string;
   alias?: string;
@@ -42,6 +45,7 @@ export type ASTElement = {
   iterator2?: string;
   key?: string;
 
+  ref?: string;
   slotName?: string;
   slotTarget?: string;
 
@@ -57,15 +61,22 @@ export type ASTElement = {
   directives?: { name: string, arg?: string, value?: string, modifies?: { [index: string]: true } }[];
 
   ns?: string;
+  plain?: boolean;
+  hasBindings?: true;
+  static?: boolean;
+  staticRoot?: boolean;
+  staticInFor?: boolean;
 }
 
 export type ASTExpression = {
   type: 2;
   expression: string;
+  static?: boolean;
 }
 
 export type ASTText = {
   type: 3;
   text: string;
+  static?: boolean;
 }
 
