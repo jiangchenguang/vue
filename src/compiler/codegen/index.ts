@@ -15,6 +15,8 @@ export function generate(
 function genElement(el: ASTElement): string {
   if (el.if && !el.ifProcessed) {
     return genIf(el);
+  } else if(el.for && !el.ifProcessed){
+    return genFor(el);
   } else {
     let code: string;
 
@@ -50,6 +52,14 @@ function genIfConditions(conditions: ASTIfConditions): string {
   }
 }
 
+function genFor(el: ASTElement): string {
+  el.ifProcessed = true;
+  return `_l((${el.for}),` +
+    `function(){` +
+    `return ${genElement(el)}` +
+    `})`;
+}
+
 function genChildren(el: ASTElement): string {
   const children = el.children;
   if (children.length) {
@@ -59,6 +69,14 @@ function genChildren(el: ASTElement): string {
 
 function genData(el: ASTElement): string {
   let data = "{";
+
+  if (el.ref) {
+    data += `ref:${el.ref},`
+  }
+
+  if(el.refInFor) {
+    data += `refInFor:true,`
+  }
 
   data = data.replace(/,$/, "") + "}";
 

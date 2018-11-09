@@ -187,7 +187,6 @@ function processOnce(el: ASTElement) {
 
 function processIf(el: ASTElement) {
   let exp: string;
-  let test = getAndRemoveAttr(el, "v-else");
   if (exp = getAndRemoveAttr(el, "v-if")) {
     el.if = exp;
     addIfConditions(el, {
@@ -251,7 +250,19 @@ function processRef(el: ASTElement) {
   let ref = getBindAttr(el, "ref");
   if (ref) {
     el.ref = ref;
+    el.refInFor = checkRefInFor(el);
   }
+}
+
+function checkRefInFor(el: ASTElement){
+  let curr = el;
+  while (curr) {
+    if (curr.for !== undefined) {
+      return true;
+    }
+    curr = curr.parent
+  }
+  return false;
 }
 
 function processSlot(el: ASTElement) {
