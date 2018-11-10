@@ -266,7 +266,6 @@ function checkRefInFor(el: ASTElement){
 }
 
 function processSlot(el: ASTElement) {
-  // todo: why not use getAndRemoveAttr?
   if (el.tag === "slot") {
     el.slotName = getBindAttr(el, "name");
   } else {

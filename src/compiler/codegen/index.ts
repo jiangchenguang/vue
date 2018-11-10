@@ -1,10 +1,17 @@
 import { ASTElement, ASTExpression, ASTIfConditions, ASTNode, ASTText, CompilerOptions } from "types/compilerOptions";
+import { isReservedTag } from "src/platforms/web/util/index";
+import { no } from "src/shared/util";
+
+let isPlantReservedTag: any;
 
 export function generate(
-  ast: ASTElement
+  ast: ASTElement,
+  options: CompilerOptions,
 ): {
   render: string
 } {
+  isPlantReservedTag = options.isReservedTag || no;
+
   const code = ast ? genElement(ast) : '_c("div")';
 
   return {
@@ -15,13 +22,15 @@ export function generate(
 function genElement(el: ASTElement): string {
   if (el.if && !el.ifProcessed) {
     return genIf(el);
-  } else if(el.for && !el.ifProcessed){
+  } else if (el.for && !el.ifProcessed) {
     return genFor(el);
+  } else if (el.tag === "slot") {
+    return genSlot(el);
   } else {
     let code: string;
 
     const data = el.plain ? undefined : genData(el);
-    const children = genChildren(el);
+    const children = genChildren(el, true);
 
     code = `_c('${el.tag}'${
       data ? `,${data}` : ""
@@ -67,17 +76,19 @@ function genFor(el: ASTElement): string {
     `})`;
 }
 
-function genChildren(el: ASTElement): string {
-  const children = el.children;
-  if (children.length) {
-    return `[${children.map(genNode).join(",")}]`
-  }
+function genSlot(el: ASTElement): string {
+  const slotName = el.slotName || '"default"';
+  let children = genChildren(el);
+  let res = `_t(${slotName}${children ? `,${children}`:""}`;
+
+  res += ')';
+  return res;
 }
 
 function genData(el: ASTElement): string {
   let data = "{";
 
-  if(el.key) {
+  if (el.key) {
     data += `key:${el.key},`
   }
 
@@ -85,8 +96,12 @@ function genData(el: ASTElement): string {
     data += `ref:${el.ref},`
   }
 
-  if(el.refInFor) {
+  if (el.refInFor) {
     data += `refInFor:true,`
+  }
+
+  if (el.slotTarget) {
+    data += `slot:${el.slotTarget},`
   }
 
   data = data.replace(/,$/, "") + "}";
@@ -102,7 +117,7 @@ function genNode(el: ASTNode): string {
   }
 }
 
-function genProps(props: { name: string, value: string }[]) : string {
+function genProps(props: { name: string, value: string }[]): string {
   let data = "";
   for (let prop of props) {
     data += `${prop.name}: ${prop.value},`
@@ -116,4 +131,46 @@ function genText(el: ASTExpression | ASTText): string {
     ? el.expression
     : JSON.stringify(el.text)
     })`
+}
+
+function genChildren(el: ASTElement, checkSkip?: boolean): string {
+  const children = el.children;
+
+  let normalizationType = getNormalizationType(el);
+  if (children.length) {
+    return `[${children.map(genNode).join(",")}]${
+      checkSkip
+        ? normalizationType ? `,${normalizationType}` : ''
+        : ''
+      }`
+  }
+}
+
+// todo: 目的是什么？
+function getNormalizationType(el: ASTElement): number {
+  let type = 0;
+  for (let child of el.children) {
+    if (child.type !== 1) {
+      continue;
+    }
+
+    if (needNormalization(child) ||
+      (child.ifConditions && child.ifConditions.some(condition => needNormalization(condition.block)))) {
+      type = 2;
+      break;
+    }
+    if (maybeComponent(child) ||
+      (child.ifConditions && child.ifConditions.some(condition => maybeComponent(condition.block)))) {
+      type = 1;
+    }
+  }
+  return type;
+}
+
+function needNormalization(el: ASTElement): boolean {
+  return el.for !== undefined || el.tag === "slot" || el.tag === "template";
+}
+
+function maybeComponent(el: ASTElement): boolean {
+  return !isPlantReservedTag(el.tag);
 }

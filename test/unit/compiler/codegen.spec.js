@@ -6,7 +6,7 @@ import { baseOptions } from "src/platforms/web/compiler";
 function assertCodegen (template, generatedCode){
   const ast = parse(template, baseOptions);
   optimize(ast, baseOptions);
-  const res = generate(ast);
+  const res = generate(ast, baseOptions);
   expect(res.render).toBe(generatedCode);
 }
 
@@ -91,10 +91,36 @@ describe("codegen", function (){
   })
 
   xit("generate v-bind directive", function (){
+  })
+
+  xit("generate template tag", function (){
+  })
+
+  it("generate simple slot", function (){
     assertCodegen(
-      `<p v-bind="test"></p>`,
-      ``
+      `<div><slot></slot></div>`,
+      `with(this){return _c('div',[_t("default")],2)}`
     )
   })
 
+  it("generate named slot", function (){
+    assertCodegen(
+      `<div><slot name="one"></slot></div>`,
+      `with(this){return _c('div',[_t("one")],2)}`
+    )
+  })
+
+  it("generate slot fallback content", function (){
+    assertCodegen(
+      `<div><slot><div>hi</div></slot>`,
+      `with(this){return _c('div',[_t("default",[_c('div',[_v("hi")])])],2)}`
+    )
+  })
+
+  it("generate slot target", function (){
+    assertCodegen(
+      `<p slot="one">hello world</p>`,
+      `with(this){return _c('p',{slot:"one"},[_v("hello world")])}`
+    )
+  })
 })
