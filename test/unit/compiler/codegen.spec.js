@@ -11,6 +11,43 @@ function assertCodegen (template, generatedCode){
 }
 
 describe("codegen", function (){
+  it("generate v-for directive", function (){
+    assertCodegen(
+      `<div><li v-for="item in items" :key="item.uid"></li></div>`,
+      `with(this){return _c('div',[_l((items),function(item){return _c('li',{key:item.uid})})])}`
+    );
+
+    assertCodegen(
+      `<div><li v-for="(item, i) in items"></li></div>`,
+      `with(this){return _c('div',[_l((items),function(item,i){return _c('li')})])}`
+    )
+
+    assertCodegen(
+      `<div><li v-for="(item, key, index) in items"></li></div>`,
+      `with(this){return _c('div',[_l((items),function(item,key,index){return _c('li')})])}`
+    )
+
+    assertCodegen(
+      `<div><li v-for="{a, b} in items"></li></div>`,
+      `with(this){return _c('div',[_l((items),function({a, b}){return _c('li')})])}`
+    )
+
+    assertCodegen(
+      `<div><li v-for="({a, b}, key, index) in items"></li></div>`,
+      `with(this){return _c('div',[_l((items),function({a, b},key,index){return _c('li')})])}`
+    )
+
+    assertCodegen(
+      `<div><p></p><li v-for="item in items"></li></div>`,
+      `with(this){return _c('div',[_c('p'),_l((items),function(item){return _c('li')})])}`
+    )
+
+    assertCodegen(
+      `<ul><li v-for="item of items" ref="component1"></li></ul>`,
+      `with(this){return _c('ul',[_l((items),function(item){return _c('li',{ref:"component1",refInFor:true})})])}`
+    )
+  })
+
   it('generate v-if directive', () => {
     assertCodegen(
       `<p v-if="show">hello</p>`,
@@ -53,10 +90,10 @@ describe("codegen", function (){
     )
   })
 
-  it("generate v-for directive", function (){
+  xit("generate v-bind directive", function (){
     assertCodegen(
-      `<ul><li v-for="item of items" ref="component1"></li></ul>`,
-      `with(this){return _c('ul',[_l((items),function(){return _c('li',{ref:"component1",refInFor:true})})])}`
+      `<p v-bind="test"></p>`,
+      ``
     )
   })
 

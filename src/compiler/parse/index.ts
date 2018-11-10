@@ -9,7 +9,7 @@ import {
 } from "src/compiler/helper";
 
 const forAliasRE = /(.*?)\s+(?:in|of)\s+(.*)/;
-const forIteratorRE = /\(([^,]*),([^,]*)(?:,([^,]*))?\)/;
+const forIteratorRE = /\((\{[^}]*\}|[^,]*),([^,]*)(?:,([^,]*))?\)/;
 const dirRE = /^v-|^:|^@/;
 const bindRE = /^v-bind|^:/;
 const onRE = /^v-on|^@/;
