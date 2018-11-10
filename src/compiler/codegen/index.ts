@@ -15,6 +15,8 @@ export function generate(
 function genElement(el: ASTElement): string {
   if (el.if && !el.ifProcessed) {
     return genIf(el);
+  } else if(el.for && !el.ifProcessed){
+    return genFor(el);
   } else {
     let code: string;
 
@@ -50,6 +52,21 @@ function genIfConditions(conditions: ASTIfConditions): string {
   }
 }
 
+function genFor(el: ASTElement): string {
+  el.ifProcessed = true;
+
+  let exp = el.for;
+  let alias = el.alias;
+  let iterator1 = el.iterator1 ? `,${el.iterator1}` : "";
+  let iterator2 = el.iterator2 ? `,${el.iterator2}` : "";
+
+
+  return `_l((${el.for}),` +
+    `function(${alias}${iterator1}${iterator2}){` +
+    `return ${genElement(el)}` +
+    `})`;
+}
+
 function genChildren(el: ASTElement): string {
   const children = el.children;
   if (children.length) {
@@ -59,6 +76,18 @@ function genChildren(el: ASTElement): string {
 
 function genData(el: ASTElement): string {
   let data = "{";
+
+  if(el.key) {
+    data += `key:${el.key},`
+  }
+
+  if (el.ref) {
+    data += `ref:${el.ref},`
+  }
+
+  if(el.refInFor) {
+    data += `refInFor:true,`
+  }
 
   data = data.replace(/,$/, "") + "}";
 
@@ -71,6 +100,15 @@ function genNode(el: ASTNode): string {
   } else {
     return genText(el);
   }
+}
+
+function genProps(props: { name: string, value: string }[]) : string {
+  let data = "";
+  for (let prop of props) {
+    data += `${prop.name}: ${prop.value},`
+  }
+  data = data.replace(/,$/, "");
+  return data;
 }
 
 function genText(el: ASTExpression | ASTText): string {

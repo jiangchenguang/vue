@@ -35,7 +35,7 @@ export function getBindAttr(
 
 export function getAndRemoveAttr(element: ASTElement, name: string): string {
   let val: string;
-  if (val = element.attrsMap[name]) {
+  if ((val = element.attrsMap[name]) != null) {
     for (let i = 0; i < element.attrsList.length; i++) {
       if (element.attrsList[i].name === name) {
         element.attrsList.splice(i, 1);

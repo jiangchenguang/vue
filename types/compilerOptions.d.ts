@@ -46,6 +46,7 @@ export type ASTElement = {
   key?: string;
 
   ref?: string;
+  refInFor?: boolean;
   slotName?: string;
   slotTarget?: string;
 
