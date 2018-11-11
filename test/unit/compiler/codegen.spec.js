@@ -3,9 +3,19 @@ import { optimize } from "src/compiler/optimizer";
 import { generate } from "src/compiler/codegen";
 import { baseOptions } from "src/platforms/web/compiler";
 
-function assertCodegen (template, generatedCode){
+function assertCodegen (template, generatedCode, ...args){
+  let proc = null;
+  let len = args.length;
+  while (len--) {
+    const arg = args[len];
+    if (typeof arg === "function") {
+      proc = arg;
+    }
+  }
+
   const ast = parse(template, baseOptions);
   optimize(ast, baseOptions);
+  proc && proc(ast);
   const res = generate(ast, baseOptions);
   expect(res.render).toBe(generatedCode);
 }
@@ -240,4 +250,27 @@ describe("codegen", function (){
       `with(this){return _c('input',{on:{"input":e=>count++}})}`
     )
   })
+
+  it("should not treat handler with unexpected whitespace as inline statement", function (){
+    assertCodegen(
+      `<input @input=" onInput ">`,
+      `with(this){return _c('input',{on:{"input": onInput }})}`
+    )
+  })
+
+  it("generate unhandled events", function (){
+    assertCodegen(
+      `<input @input="count++">`,
+      `with(this){return _c('input',{on:{"input":function(){}}})}`,
+      ast => ast.events.input = undefined
+    )
+  })
+
+  it("generate multiple event handlers", function (){
+    assertCodegen(
+      `<input @input="count++" @input.stop="onInput">`,
+      `with(this){return _c('input',{on:{"input":[function($event){count++},function($event){$event.stopPropagation();onInput($event)}]}})}`
+    )
+  })
+
 })

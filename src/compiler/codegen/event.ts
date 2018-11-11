@@ -41,6 +41,7 @@ function genHandler(name: string, handler: ASTElementHandler | ASTElementHandler
       code = genKeyFilter(keys) + code;
     }
 
+    // todo problem 这里的作用
     const handleCode = simplePathRE.test(handler.value)
       ? handler.value + "($event)"
       : handler.value;

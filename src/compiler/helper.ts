@@ -59,14 +59,13 @@ export function addHandler(
   value: string,
   modifiers?: ASTModifiers
 ) {
-  let handler: ASTElementHandler | ASTElementHandler[];
   let events = element.events || (element.events = {});
+  let handler = events[name];
   let newHandler: ASTElementHandler = {value, modifiers};
-  handler = events[name];
   if (Array.isArray(handler)) {
     (handler as ASTElementHandler[]).push(newHandler);
   } else if (handler) {
-    handler = [handler, newHandler];
+    events[name] = [handler, newHandler];
   } else {
     events[name] = newHandler;
   }
