@@ -334,10 +334,10 @@ describe("parse", function (){
     expect(ast.directives[ 0 ].value).toBe("required");
   })
 
-  it("attribute with modifies directive", function (){
+  it("attribute with modifiers directive", function (){
     const ast = parse(`<input v-validate.on.off>`, baseOptions);
-    expect(ast.directives[ 0 ].modifies.on).toBe(true);
-    expect(ast.directives[ 0 ].modifies.off).toBe(true);
+    expect(ast.directives[ 0 ].modifiers.on).toBe(true);
+    expect(ast.directives[ 0 ].modifiers.off).toBe(true);
   })
 
   it("literal attribute", function (){

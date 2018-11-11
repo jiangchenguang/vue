@@ -1,9 +1,19 @@
 import { parseHTML } from "./html-parse";
 import { parseText } from "./text-parse";
-import { ASTElement, ASTExpression, ASTNode, ASTText, CompilerOptions } from "types/compilerOptions";
+import {
+  ASTElement,
+  ASTExpression, ASTModifiers,
+  ASTNode,
+  ASTText,
+  CompilerOptions,
+  transformFromNodeFunction
+} from "types/compilerOptions";
 import { no } from "src/shared/util";
 import {
-  addAttr, addDirective, addHandler, addProp,
+  addAttr,
+  addDirective,
+  addHandler,
+  addProp,
   getAndRemoveAttr,
   getBindAttr, pluckModuleFunction
 } from "src/compiler/helper";
@@ -18,7 +28,7 @@ const modifyRE = /\.[^\.]+/g;
 
 let platformGetTagNamespace: any;
 let platformMustUseProp: any;
-let tranforms: ((el: ASTElement) => void)[];
+let tranforms: transformFromNodeFunction[];
 
 export function parse(
   template: string,
@@ -297,13 +307,14 @@ function processAttrs(el: ASTElement) {
       value = attr.value;
       if (dirRE.test(name)) {
         el.hasBindings = true;
-        let modifies = parseModifies(name);
-        if (modifies) {
+        let modifiers = parseModifiers(name);
+        if (modifiers) {
           name = name.replace(modifyRE, "");
         }
 
         if (bindRE.test(name)) {
           name = name.replace(bindRE, "");
+          // todo: props 和 attrs的区别？
           if (platformMustUseProp(el.tag, name, el.attrsMap.type)) {
             addProp(el, name, value);
           } else {
@@ -311,7 +322,7 @@ function processAttrs(el: ASTElement) {
           }
         } else if (onRE.test(name)) {
           name = name.replace(onRE, "");
-          addHandler(el, name, value);
+          addHandler(el, name, value, modifiers);
         } else {
           name = name.replace(dirRE, "");
           let arg;
@@ -321,7 +332,7 @@ function processAttrs(el: ASTElement) {
             name = name.slice(0, -(argMatch[0].length));
           }
 
-          addDirective(el, name, value, arg, modifies);
+          addDirective(el, name, value, arg, modifiers);
         }
       } else {
         addAttr(el, name, JSON.stringify(value));
@@ -330,7 +341,7 @@ function processAttrs(el: ASTElement) {
   }
 }
 
-function parseModifies(name: string): { [index: string]: true } {
+function parseModifiers(name: string): ASTModifiers {
   let match = name.match(modifyRE);
   if (match) {
     let r: { [index: string]: true } = {};

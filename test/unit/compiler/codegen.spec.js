@@ -14,37 +14,37 @@ describe("codegen", function (){
   it("generate v-for directive", function (){
     assertCodegen(
       `<div><li v-for="item in items" :key="item.uid"></li></div>`,
-      `with(this){return _c('div',[_l((items),function(item){return _c('li',{key:item.uid})})])}`
+      `with(this){return _c('div',_l((items),function(item){return _c('li',{key:item.uid})}))}`
     );
 
     assertCodegen(
       `<div><li v-for="(item, i) in items"></li></div>`,
-      `with(this){return _c('div',[_l((items),function(item,i){return _c('li')})])}`
+      `with(this){return _c('div',_l((items),function(item,i){return _c('li')}))}`
     )
 
     assertCodegen(
       `<div><li v-for="(item, key, index) in items"></li></div>`,
-      `with(this){return _c('div',[_l((items),function(item,key,index){return _c('li')})])}`
+      `with(this){return _c('div',_l((items),function(item,key,index){return _c('li')}))}`
     )
 
     assertCodegen(
       `<div><li v-for="{a, b} in items"></li></div>`,
-      `with(this){return _c('div',[_l((items),function({a, b}){return _c('li')})])}`
+      `with(this){return _c('div',_l((items),function({a, b}){return _c('li')}))}`
     )
 
     assertCodegen(
       `<div><li v-for="({a, b}, key, index) in items"></li></div>`,
-      `with(this){return _c('div',[_l((items),function({a, b},key,index){return _c('li')})])}`
+      `with(this){return _c('div',_l((items),function({a, b},key,index){return _c('li')}))}`
     )
 
     assertCodegen(
       `<div><p></p><li v-for="item in items"></li></div>`,
-      `with(this){return _c('div',[_c('p'),_l((items),function(item){return _c('li')})])}`
+      `with(this){return _c('div',[_c('p'),_l((items),function(item){return _c('li')})],2)}`
     )
 
     assertCodegen(
       `<ul><li v-for="item of items" ref="component1"></li></ul>`,
-      `with(this){return _c('ul',[_l((items),function(item){return _c('li',{ref:"component1",refInFor:true})})])}`
+      `with(this){return _c('ul',_l((items),function(item){return _c('li',{ref:"component1",refInFor:true})}))}`
     )
   })
 
@@ -93,6 +93,9 @@ describe("codegen", function (){
   xit("generate v-bind directive", function (){
   })
 
+  xit("generate v-show directive", function (){
+  })
+
   xit("generate template tag", function (){
   })
 
@@ -121,6 +124,120 @@ describe("codegen", function (){
     assertCodegen(
       `<p slot="one">hello world</p>`,
       `with(this){return _c('p',{slot:"one"},[_v("hello world")])}`
+    )
+  })
+
+  it("generate class binding", function (){
+    assertCodegen(
+      `<p class="class1">hello world</p>`,
+      `with(this){return _c('p',{staticClass:"class1"},[_v("hello world")])}`
+    )
+
+    assertCodegen(
+      `<p :class="class1">hello world</p>`,
+      `with(this){return _c('p',{class:class1},[_v("hello world")])}`
+    )
+  })
+
+  it("generate style binding", function (){
+    assertCodegen(
+      `<p :style="error">hello world</p>`,
+      `with(this){return _c('p',{style:(error)},[_v("hello world")])}`
+    )
+  })
+
+  it("generate DOM props with v-bind directive", function (){
+    // input + value
+    assertCodegen(
+      `<input :value="msg">`,
+      `with(this){return _c('input',{domProps:{"value":msg}})}`
+    )
+
+    // no input
+    assertCodegen(
+      `<p :value="msg"></p>`,
+      `with(this){return _c('p',{attrs:{"value":msg}})}`
+    )
+  })
+
+  it("generate attrs with v-bind directive", function (){
+    assertCodegen(
+      `<input :name="field1">`,
+      `with(this){return _c('input',{attrs:{"name":field1}})}`
+    )
+  })
+
+  it("generate events with v-on directive", function (){
+    assertCodegen(
+      `<input @input="onInput">`,
+      `with(this){return _c('input',{on:{"input":onInput}})}`
+    )
+  })
+
+  xit("generate event with keycode", function (){
+  })
+
+  xit("generate event with modifiers", function (){
+  })
+
+  xit("generate event with mouse event modifiers", function (){
+  })
+
+  it("generate event with multiple modifiers", function (){
+    assertCodegen(
+      `<input @input.stop.prevent="onInput">`,
+      `with(this){return _c('input',{on:{"input":function($event){$event.stopPropagation();$event.preventDefault();onInput($event)}}})}`
+    )
+  })
+
+  xit("generate event with capture modifiers", function (){
+  })
+
+  xit("generate event with once modifiers", function (){
+  })
+
+  xit("generate event with capture and once modifiers", function (){
+  })
+
+  xit("generate event with once and capture modifiers", function (){
+  })
+
+  it("generate event with inline statement", function (){
+    assertCodegen(
+      `<input @input="count++">`,
+      `with(this){return _c('input',{on:{"input":function($event){count++}}})}`
+    )
+  })
+
+  it("generate event with inline function", function (){
+    assertCodegen(
+      `<input @input="function (){ count++ }">`,
+      `with(this){return _c('input',{on:{"input":function (){ count++ }}})}`
+    )
+
+    assertCodegen(
+      `<input @input="()=>count++">`,
+      `with(this){return _c('input',{on:{"input":()=>count++}})}`
+    )
+
+    assertCodegen(
+      `<input @input="(e) => count++">`,
+      `with(this){return _c('input',{on:{"input":(e) => count++}})}`
+    )
+
+    assertCodegen(
+      `<input @input="(a, b, c) => count++">`,
+      `with(this){return _c('input',{on:{"input":(a, b, c) => count++}})}`
+    )
+
+    assertCodegen(
+      `<input @input="({a, b}, c) => count++">`,
+      `with(this){return _c('input',{on:{"input":({a, b}, c) => count++}})}`
+    )
+
+    assertCodegen(
+      `<input @input="e=>count++">`,
+      `with(this){return _c('input',{on:{"input":e=>count++}})}`
     )
   })
 })

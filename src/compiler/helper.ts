@@ -1,10 +1,17 @@
 import { parseFilters } from "src/compiler/parse/filter-parse";
-import { ASTElement, CompilerModule } from "types/compilerOptions";
+import {
+  ASTElement,
+  ASTElementHandler, ASTModifiers,
+  CompilerModule,
+  genDataFunction,
+  transformFromNodeFunction
+} from "types/compilerOptions";
 
 export function pluckModuleFunction(
   modules: CompilerModule[],
-  key: "transformNode"
-): ((el: ASTElement) => void)[] {
+  key: "transformNode" | "genData"
+): any {
+  // todo optimize 这里的返回类型应该和key对应，如何优化
   return modules.map(item => item[key]).filter(i => i);
 }
 
@@ -50,13 +57,14 @@ export function addHandler(
   element: ASTElement,
   name: string,
   value: string,
+  modifiers?: ASTModifiers
 ) {
-  let handler: { value: string } | { value: string }[];
+  let handler: ASTElementHandler | ASTElementHandler[];
   let events = element.events || (element.events = {});
-  let newHandler = {value};
+  let newHandler: ASTElementHandler = {value, modifiers};
   handler = events[name];
   if (Array.isArray(handler)) {
-    handler.push(newHandler);
+    (handler as ASTElementHandler[]).push(newHandler);
   } else if (handler) {
     handler = [handler, newHandler];
   } else {
@@ -69,7 +77,7 @@ export function addDirective(
   name: string,
   value?: string,
   arg?: string,
-  modifies?: { [index: string]: true }
+  modifiers?: ASTModifiers
 ) {
-  (el.directives || (el.directives = [])).push({name, arg, value, modifies});
+  (el.directives || (el.directives = [])).push({name, arg, value, modifiers});
 }

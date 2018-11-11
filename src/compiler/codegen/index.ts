@@ -1,8 +1,20 @@
-import { ASTElement, ASTExpression, ASTIfConditions, ASTNode, ASTText, CompilerOptions } from "types/compilerOptions";
+import { genHandlers } from "./event";
 import { isReservedTag } from "src/platforms/web/util/index";
 import { no } from "src/shared/util";
+import { pluckModuleFunction } from "src/compiler/helper";
+import {
+  ASTElement,
+  ASTElementHandler,
+  ASTExpression,
+  ASTIfConditions,
+  ASTNode,
+  ASTText,
+  CompilerOptions,
+  genDataFunction
+} from "types/compilerOptions";
 
 let isPlantReservedTag: any;
+let genDataFns: genDataFunction[];
 
 export function generate(
   ast: ASTElement,
@@ -11,6 +23,7 @@ export function generate(
   render: string
 } {
   isPlantReservedTag = options.isReservedTag || no;
+  genDataFns = pluckModuleFunction(options.modules, "genData");
 
   const code = ast ? genElement(ast) : '_c("div")';
 
@@ -79,7 +92,7 @@ function genFor(el: ASTElement): string {
 function genSlot(el: ASTElement): string {
   const slotName = el.slotName || '"default"';
   let children = genChildren(el);
-  let res = `_t(${slotName}${children ? `,${children}`:""}`;
+  let res = `_t(${slotName}${children ? `,${children}` : ""}`;
 
   res += ')';
   return res;
@@ -98,6 +111,22 @@ function genData(el: ASTElement): string {
 
   if (el.refInFor) {
     data += `refInFor:true,`
+  }
+
+  for (let genData of genDataFns) {
+    data += genData(el);
+  }
+
+  if (el.attrs) {
+    data += `attrs:{${genProps(el.attrs)}},`
+  }
+
+  if (el.props) {
+    data += `domProps:{${genProps(el.props)}},`
+  }
+
+  if (el.events) {
+    data += `${genHandlers(el.events)},`
   }
 
   if (el.slotTarget) {
@@ -120,11 +149,12 @@ function genNode(el: ASTNode): string {
 function genProps(props: { name: string, value: string }[]): string {
   let data = "";
   for (let prop of props) {
-    data += `${prop.name}: ${prop.value},`
+    data += `"${prop.name}":${prop.value},`
   }
   data = data.replace(/,$/, "");
   return data;
 }
+
 
 function genText(el: ASTExpression | ASTText): string {
   return `_v(${el.type === 2
@@ -135,9 +165,17 @@ function genText(el: ASTExpression | ASTText): string {
 
 function genChildren(el: ASTElement, checkSkip?: boolean): string {
   const children = el.children;
-
-  let normalizationType = getNormalizationType(el);
   if (children.length) {
+    // 对只有一个子元素的优化
+    let el: ASTElement = <ASTElement>children[0];
+    if (children.length === 1 &&
+      el.for &&
+      el.tag !== "slot" &&
+      el.tag !== "template") {
+      return genElement(el);
+    }
+
+    let normalizationType = getNormalizationType(children);
     return `[${children.map(genNode).join(",")}]${
       checkSkip
         ? normalizationType ? `,${normalizationType}` : ''
@@ -147,9 +185,9 @@ function genChildren(el: ASTElement, checkSkip?: boolean): string {
 }
 
 // todo: 目的是什么？
-function getNormalizationType(el: ASTElement): number {
+function getNormalizationType(children: ASTNode[]): number {
   let type = 0;
-  for (let child of el.children) {
+  for (let child of children) {
     if (child.type !== 1) {
       continue;
     }
