@@ -4,11 +4,14 @@ import { generate } from "src/compiler/codegen";
 import { baseOptions } from "src/platforms/web/compiler";
 
 function assertCodegen (template, generatedCode, ...args){
-  let proc = null;
-  let len = args.length;
+  let staticRenderFns = [];
+  let proc            = null;
+  let len             = args.length;
   while (len--) {
-    const arg = args[len];
-    if (typeof arg === "function") {
+    const arg = args[ len ];
+    if (Array.isArray(arg)) {
+      staticRenderFns = arg;
+    } else if (typeof arg === "function") {
       proc = arg;
     }
   }
@@ -18,6 +21,7 @@ function assertCodegen (template, generatedCode, ...args){
   proc && proc(ast);
   const res = generate(ast, baseOptions);
   expect(res.render).toBe(generatedCode);
+  expect(res.staticRenderFns).toEqual(staticRenderFns);
 }
 
 describe("codegen", function (){
@@ -273,4 +277,45 @@ describe("codegen", function (){
     )
   })
 
+  it("generate component", function (){
+    assertCodegen(
+      `<my-component name="myComponent1" :title="msg" @notify="onNotify"><div>hi</div></my-component>`,
+      `with(this){return _c('my-component',{attrs:{"name":"myComponent1","title":msg},on:{"notify":onNotify}},[_c('div',[_v("hi")])])}`
+    )
+  })
+
+  xit("generate svg component with children", function (){
+  })
+
+  it("generate is attribute", function (){
+    assertCodegen(
+      `<p is="component1"></p>`,
+      `with(this){return _c("component1",{tag:"p"})}`
+    )
+
+    assertCodegen(
+      `<p :is="component"></p>`,
+      `with(this){return _c(component,{tag:"p"})}`
+    )
+  })
+
+  xit("generate inline-template", function (){
+  })
+
+  it("generate static trees inside v-for", function (){
+    assertCodegen(
+      `<div><div v-for="i in 10"><p><span></span></p></div></div>`,
+      `with(this){return _c('div',_l((10),function(i){return _c('div',[_m(0,true)])}))}`,
+      [ `with(this){return _c('p',[_c('span')])}` ]
+    )
+  })
+
+  xit("generate component with v-for", function (){
+  })
+
+  it("no specified ast type", function (){
+    const res = generate(null, baseOptions);
+    expect(res.render).toBe(`with(this){return _c("div")}`);
+    expect(res.staticRenderFns).toEqual([]);
+  })
 })

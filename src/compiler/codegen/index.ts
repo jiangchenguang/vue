@@ -15,45 +15,64 @@ import {
 
 let isPlantReservedTag: any;
 let genDataFns: genDataFunction[];
+let staticRenderFns: string[];
 
 export function generate(
   ast: ASTElement,
   options: CompilerOptions,
 ): {
   render: string
+  staticRenderFns: string[]
 } {
+  const prevStaticRenderFns = staticRenderFns;
+  const currentStaticRenderFns: string[] = staticRenderFns = [];
+
   isPlantReservedTag = options.isReservedTag || no;
   genDataFns = pluckModuleFunction(options.modules, "genData");
 
   const code = ast ? genElement(ast) : '_c("div")';
+  staticRenderFns = prevStaticRenderFns;
 
   return {
-    render: `with(this){return ${code}}`
+    render: `with(this){return ${code}}`,
+    staticRenderFns: currentStaticRenderFns
   }
 }
 
 function genElement(el: ASTElement): string {
-  if (el.if && !el.ifProcessed) {
+  if (el.staticRoot && !el.staticProcessed) {
+    return genStatic(el);
+  } else if (el.if && !el.ifProcessed) {
     return genIf(el);
-  } else if (el.for && !el.ifProcessed) {
+  } else if (el.for && !el.forProcessed) {
     return genFor(el);
   } else if (el.tag === "slot") {
     return genSlot(el);
   } else {
     let code: string;
+    if (el.component) {
+      code = genComponent(el.component, el);
+    } else {
+      const data = el.plain ? undefined : genData(el);
+      const children = genChildren(el, true);
 
-    const data = el.plain ? undefined : genData(el);
-    const children = genChildren(el, true);
-
-    code = `_c('${el.tag}'${
-      data ? `,${data}` : ""
-      }${
-      children ? `,${children}` : ""
-      })`;
+      code = `_c('${el.tag}'${
+        data ? `,${data}` : ""
+        }${
+        children ? `,${children}` : ""
+        })`;
+    }
 
     return code;
   }
 }
+
+function genStatic(el: ASTElement): string {
+  el.staticProcessed = true;
+  staticRenderFns.push(`with(this){return ${genElement(el)}}`);
+  return `_m(${staticRenderFns.length - 1}${el.staticInFor ? ',true' : ''})`
+}
+
 
 function genIf(el: ASTElement): string {
   el.ifProcessed = true;
@@ -75,7 +94,7 @@ function genIfConditions(conditions: ASTIfConditions): string {
 }
 
 function genFor(el: ASTElement): string {
-  el.ifProcessed = true;
+  el.forProcessed = true;
 
   let exp = el.for;
   let alias = el.alias;
@@ -133,6 +152,10 @@ function genData(el: ASTElement): string {
     data += `slot:${el.slotTarget},`
   }
 
+  if (el.component) {
+    data += `tag:"${el.tag}",`
+  }
+
   data = data.replace(/,$/, "") + "}";
 
   return data;
@@ -155,6 +178,12 @@ function genProps(props: { name: string, value: string }[]): string {
   return data;
 }
 
+function genComponent(componentName: string, el: ASTElement): string {
+  let children = genChildren(el, true);
+  return `_c(${componentName},${genData(el)}${
+    children ? `${children}` : ''
+    })`
+}
 
 function genText(el: ASTExpression | ASTText): string {
   return `_v(${el.type === 2

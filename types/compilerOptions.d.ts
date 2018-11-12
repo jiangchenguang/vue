@@ -45,6 +45,7 @@ export type ASTElement = {
   ifConditions?: ASTIfConditions;
 
   for?: string;
+  forProcessed?: boolean;
   alias?: string;
   iterator1?: string;
   iterator2?: string;
@@ -72,6 +73,7 @@ export type ASTElement = {
   static?: boolean;
   staticRoot?: boolean;
   staticInFor?: boolean;
+  staticProcessed?: boolean;
 }
 
 export type ASTExpression = {
