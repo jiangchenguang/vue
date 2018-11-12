@@ -12,6 +12,18 @@ function transformNode(el: ASTElement) {
   }
 }
 
+function genData(el: ASTElement): string {
+  let data = '';
+  if (el.staticClass){
+    data += `staticClass:${el.staticClass},`
+  }
+  if (el.classBinding){
+    data += `class:${el.classBinding},`
+  }
+  return data;
+}
+
 export default {
   transformNode,
+  genData,
 }

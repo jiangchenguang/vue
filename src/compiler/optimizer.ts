@@ -6,7 +6,7 @@ let isPlatformReservedTag: any;
 
 export function optimize(root: ASTElement, options: CompilerOptions) {
   if (!root) return;
-  isStaticKey = makeMap(`type,tag,attrsList,attrsMap,parent,children,attrs`);
+  isStaticKey = makeMap(`type,tag,attrsList,plain,attrsMap,parent,children,attrs`);
   isPlatformReservedTag = options.isReservedTag || no;
 
   makeStatic(root);

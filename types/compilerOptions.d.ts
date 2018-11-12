@@ -1,5 +1,8 @@
+type transformFromNodeFunction = (el: ASTElement) => void;
+type genDataFunction = (el: ASTElement) => string;
 type CompilerModule = {
-  transformNode?: (el: ASTElement) => void;
+  transformNode?: transformFromNodeFunction;
+  genData?: genDataFunction;
 }
 
 export type CompilerOptions = {
@@ -21,6 +24,8 @@ export type ParseHTMLOptions = {
 export type ASTNode = ASTElement | ASTExpression | ASTText
 
 export type ASTIfConditions = { exp: string, block: ASTElement }[];
+export type ASTModifiers = { [name: string]: true };
+export type ASTElementHandler = { value: string, modifiers?: ASTModifiers };
 export type ASTElement = {
   type: 1;
   tag: string;
@@ -40,6 +45,7 @@ export type ASTElement = {
   ifConditions?: ASTIfConditions;
 
   for?: string;
+  forProcessed?: boolean;
   alias?: string;
   iterator1?: string;
   iterator2?: string;
@@ -58,8 +64,8 @@ export type ASTElement = {
   staticStyle?: string;
   styleBinding?: string;
 
-  events?: { [index: string]: { value: string, } } | { [index: string]: { value: string }[] }
-  directives?: { name: string, arg?: string, value?: string, modifies?: { [index: string]: true } }[];
+  events?: { [name: string]: ASTElementHandler | ASTElementHandler[] },
+  directives?: { name: string, arg?: string, value?: string, modifiers?: ASTModifiers }[];
 
   ns?: string;
   plain?: boolean;
@@ -67,6 +73,7 @@ export type ASTElement = {
   static?: boolean;
   staticRoot?: boolean;
   staticInFor?: boolean;
+  staticProcessed?: boolean;
 }
 
 export type ASTExpression = {
