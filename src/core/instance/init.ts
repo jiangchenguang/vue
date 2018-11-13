@@ -1,5 +1,6 @@
-import { initState } from "./state";
 import { initLifeCycle } from "./lifeCycle";
+import { initRender } from "./render";
+import { initState } from "./state";
 import { Component } from "types/component";
 import { ComponentOptions } from "types/options";
 
@@ -13,6 +14,7 @@ export function initMixin(Vue: Function) {
 
     vm.$options = options;
 
+    initRender(vm);
     initLifeCycle(vm);
     initState(vm);
   }

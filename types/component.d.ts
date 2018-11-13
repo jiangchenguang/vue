@@ -16,5 +16,7 @@ export interface Component {
   _isVue: true;
   _data: object;
   _watcher: Watcher;
+
+  $createElement: (tag:string, data?:object) => VNode;
 }
 

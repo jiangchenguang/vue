@@ -31,6 +31,15 @@ export function makeMap(str: string): (val: string) => boolean {
 
 export const isBuildInTag = makeMap(`slot,component`);
 
+const camelizeRE = /-(\w)/g;
+export function camelize(str: string): string {
+  return str.replace(camelizeRE, (a, b) => b ? b.toUpperCase() : "");
+}
+
+export function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function no() {
   return false;
 }
@@ -41,4 +50,3 @@ export function extend(to: any, from: any) {
   }
   return to;
 }
-
