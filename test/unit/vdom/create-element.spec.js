@@ -43,6 +43,35 @@ describe("create-element", function (){
     expect(vnode).toEqual(createEmptyVNode());
   });
 
+  it("render vnode with createElement with children", function (){
+    const vm = new Vue({});
+    const h = vm.$createElement;
+    const vnode = h('p', void 0, [h("br"), "hello world", h("br")]);
+    expect(vnode.children[0].tag).toBe("br");
+    expect(vnode.children[1].text).toBe("hello world");
+    expect(vnode.children[2].tag).toBe("br");
+  });
+
+  it("render vnode with createElement, omitting data", function (){
+    const vm = new Vue({});
+    const h = vm.$createElement;
+    const vnode = h('p', [h('br'), "hello world", h('br')]);
+    expect(vnode.children[0].tag).toBe('br');
+    expect(vnode.children[1].text).toBe('hello world');
+    expect(vnode.children[2].tag).toBe('br');
+  });
+
+  it("render vnode with createElement, including boolean and null type", function (){
+    const vm = new Vue({});
+    const h = vm.$createElement;
+    const vnode = h('p', [h('p'), true, 123, h('br'), 'abc', null]);
+    expect(vnode.children.length).toBe(4);
+    expect(vnode.children[0].tag).toBe("p");
+    expect(vnode.children[1].text).toBe("123");
+    expect(vnode.children[2].tag).toBe("br");
+    expect(vnode.children[3].text).toBe('abc');
+  })
+
   xit("render vnode with component using createElement", function (){
     const vm = new Vue({
       data      : { message: "hello world" },
@@ -52,5 +81,8 @@ describe("create-element", function (){
         }
       }
     })
+  })
+
+  xit("render vnode with not string tag using createElement", function (){
   })
 })

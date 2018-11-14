@@ -15,10 +15,14 @@ export default class VNode {
     tag?: string,
     data?: VNodeData,
     context?: Component,
+    children?: VNode[],
+    text?: string,
   ) {
     this.tag = tag;
     this.data = data;
     this.context = context;
+    this.children = children;
+    this.text = text;
   }
 }
 
@@ -26,4 +30,8 @@ export function createEmptyVNode(){
   const node = new VNode();
   node.text = "";
   return node;
+}
+
+export function createTextVNode(val: string | number): VNode {
+  return new VNode(undefined, undefined, undefined, undefined, String(val));
 }
