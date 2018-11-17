@@ -6,7 +6,7 @@ export default class VNode {
   children?: VNode[];
   context?: Component;
   text?: string;
-  elm?: Node;
+  elm: Node | void;
   ns?: string;
 
   componentOptions: any;
