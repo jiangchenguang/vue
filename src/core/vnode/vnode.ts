@@ -1,12 +1,12 @@
 import { Component } from "types/component";
 
 export default class VNode {
-  tag: string | void;
+  tag?: string;
   data: VNodeData;
   children?: VNode[];
   context?: Component;
   text?: string;
-  elm: Node | void;
+  elm?: Node;
   ns?: string;
 
   componentOptions: any;

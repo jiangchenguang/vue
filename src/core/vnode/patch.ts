@@ -1,3 +1,4 @@
+import config from "../config";
 import VNode from "src/core/vnode/vnode";
 import { NodeOpts } from "types/patch";
 
@@ -24,21 +25,26 @@ export function createPathFunction(nodeOpts: NodeOpts) {
   function createElm(vnode: VNode, parentElm: Node, refElm: Node) {
     const children = vnode.children;
     const tag = vnode.tag;
+    // 暂时只考虑nodeType 1 或者 3
     if (isDef(tag)) {
-      // createElement
+      if (!vnode.ns && config.isUnknownElement(vnode.tag)) {
+        console.error(`Unknown custom element: <${vnode.tag}>!`);
+      }
+
       vnode.elm = nodeOpts.createElement(<string>tag, vnode);
-      createChildren(vnode, children, vnode.elm);
+      createChildren(vnode, children);
       insert(parentElm, vnode.elm, refElm);
     } else {
-      // 暂时只考虑nodetype 1 或者 3
       vnode.elm = nodeOpts.createTextNode(vnode.text);
       insert(parentElm, vnode.elm, refElm);
     }
   }
 
-  function createChildren(vnode: VNode, children: VNode[], parentElm: Node) {
-    for (let child of children) {
-      child.elm = createElm(child, parentElm, null);
+  function createChildren(vnode: VNode, children: VNode[]) {
+    if (Array.isArray(children)) {
+      for (let child of children) {
+        createElm(child, vnode.elm, null);
+      }
     }
   }
 

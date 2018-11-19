@@ -8,4 +8,13 @@ describe("vnode path: element", function (){
     expect(elm.tagName).toBe("P");
     expect(elm.outerHTML).toBe("<p>hello world</p>");
   })
+
+  xit("should create an element with namespace", function (){
+  })
+
+  xit("should warn unknown element with hyphen", function (){
+    const vnode = new VNode("unknown-foo");
+    const elm = path(null, vnode, null, null);
+    expect(`Unknown custom element: <unknown-foo>!`).toHaveBeenWarned();
+  })
 })
