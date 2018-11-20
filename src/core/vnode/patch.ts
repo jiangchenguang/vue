@@ -10,6 +10,11 @@ function isDef(s: any): boolean {
   return s != null;
 }
 
+function sameVnode(vnode1: VNode, vnode2: VNode) {
+  return (
+    vnode1.tag === vnode2.tag
+  )
+}
 
 export function createPathFunction(nodeOpts: NodeOpts) {
   function insert(parent: Node, elm: Node, ref?: Node) {
@@ -19,6 +24,88 @@ export function createPathFunction(nodeOpts: NodeOpts) {
       } else {
         nodeOpts.appendChild(parent, elm);
       }
+    }
+  }
+
+  function patchVnode(oldVnode: VNode, vnode: VNode) {
+    if (oldVnode === vnode) return;
+
+    let oldCh = oldVnode.children;
+    let ch = vnode.children;
+
+    const elm = vnode.elm = oldVnode.elm;
+
+    if (isUndef(vnode.text)) {
+      if (isDef(oldCh) && isDef(ch)) {
+        if (oldCh !== ch) updateChildren(<Element>elm, oldCh, ch);
+      } else if (isDef(ch)) {
+        if (isDef(oldVnode.text)) nodeOpts.setTextContent(elm, "");
+        addVnodes(<Element>elm, null, ch, 0, ch.length - 1);
+      } else if (isDef(oldCh)) {
+        console.error("todo clear oldCh");
+      } else if (isDef(oldVnode.text)) {
+        nodeOpts.setTextContent(elm, "");
+      }
+    } else if (oldVnode.text !== vnode.text) {
+      nodeOpts.setTextContent(elm, vnode.text);
+    }
+  }
+
+  function updateChildren(parentElm: Element, oldCh: VNode[], ch: VNode[]) {
+    let oldStartIdx = 0;
+    let oldEndIdx = oldCh.length - 1;
+    let oldStartVnode = oldCh[0];
+    let oldEndVnode = oldCh[oldEndIdx];
+    let newStartIdx = 0;
+    let newEndIdx = ch.length - 1;
+    let newStartVnode = ch[0];
+    let newEndVnode = ch[newEndIdx];
+
+    // 使用新的列表去更新旧的列表
+    while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+      if (isUndef(oldStartVnode)) {
+        oldEndVnode = oldCh[++oldStartIdx];
+      } else if (isUndef(oldEndVnode)) {
+        oldEndVnode = oldCh[--oldEndIdx];
+      } else if (sameVnode(oldStartVnode, newStartVnode)) {
+        // 同一个vnode，仍然在头部
+        patchVnode(oldStartVnode, newStartVnode);
+        oldStartVnode = oldCh[++oldStartIdx];
+        newStartVnode = ch[++newStartIdx];
+      } else if (sameVnode(oldEndVnode, newEndVnode)) {
+        // 同一个vnode，仍然在尾部
+        patchVnode(oldEndVnode, newEndVnode);
+        oldEndVnode = oldCh[++oldEndIdx];
+        newEndVnode = ch[++newEndIdx];
+      } else if (sameVnode(oldStartVnode, newEndVnode)) {
+        // 同一个vnode，跑到尾部去了，同时需要将新节点移动到更新尾节点的前面
+        patchVnode(oldStartVnode, newEndVnode);
+        nodeOpts.insertBefore(parentElm, oldStartVnode.elm, nodeOpts.nextSibling(oldEndVnode.elm));
+        oldStartVnode = oldCh[++oldStartIdx];
+        newEndVnode = ch[++newEndIdx];
+      } else if (sameVnode(oldEndVnode, newStartVnode)) {
+        // 同一个vnode，跑到头部去了，通过需要将新节点移动到更新头节点的前面（即前面全部已经更新过的vnode）
+        patchVnode(oldEndVnode, newStartVnode);
+        nodeOpts.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm);
+        oldEndVnode = oldCh[++oldEndIdx];
+        newStartVnode = ch[++newStartIdx];
+      } else {
+        createElm(newStartVnode, parentElm, oldStartVnode.elm);
+        newStartVnode = ch[++newStartIdx];
+      }
+    }
+
+    if (oldStartIdx > oldEndIdx) {
+      let refElm = isUndef(ch[newEndIdx + 1]) ? null : ch[newEndIdx + 1].elm;
+      addVnodes(parentElm, refElm, ch, newStartIdx, newEndIdx);
+    } else {
+      console.error("todo clear oldCh");
+    }
+  }
+
+  function addVnodes(parentElm: Element, refEle: Node, vnodes: VNode[], startIdx: number, endIdx: number) {
+    for (let i = startIdx; i <= endIdx; i++) {
+      createElm(vnodes[i], parentElm, refEle);
     }
   }
 

@@ -16,3 +16,11 @@ export function appendChild(parentNode: Node, newNode: Node) {
   parentNode.appendChild(newNode);
 }
 
+export function nextSibling(node: Node): Node {
+  return node.nextSibling;
+}
+
+export function setTextContent(node: Node, text: string) {
+  node.textContent = text;
+}
+

@@ -7,4 +7,6 @@ export type NodeOpts = {
   createTextNode: (text: string) => Text;
   insertBefore: (parent: Node, newNode: Node, refNode: Node) => void;
   appendChild: (parent: Node, newNode: Node) => void;
+  nextSibling: (node: Node) => Node;
+  setTextContent: (node: Node, text: string) => void;
 }
