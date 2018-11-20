@@ -12,9 +12,28 @@ describe("vnode path: element", function (){
   xit("should create an element with namespace", function (){
   })
 
-  xit("should warn unknown element with hyphen", function (){
+  it("should warn unknown element with hyphen", function (){
     const vnode = new VNode("unknown-foo");
-    const elm = path(null, vnode, null, null);
+    const elm = path(null, vnode);
     expect(`Unknown custom element: <unknown-foo>!`).toHaveBeenWarned();
+  })
+
+  it("should create an element which have text content", function (){
+    const vnode = new VNode("div", null, null, [createTextVNode("hello world")]);
+    const elm = path(null, vnode);
+    expect(elm.innerHTML).toBe("hello world");
+  })
+
+  it("should create an element which have a span and text content", function (){
+    const vnode = new VNode("div", null, null, [
+      new VNode("span"),
+      createTextVNode("hello world")
+    ]);
+    const elm = path(null, vnode);
+    expect(elm.childNodes[0].tagName).toBe("SPAN");
+    expect(elm.childNodes[1].textContent).toBe("hello world");
+  })
+
+  xit("should create an element which have a scoped attr", function (){
   })
 })

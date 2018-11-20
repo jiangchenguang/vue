@@ -29,3 +29,7 @@ export function getTagNamespace(tag: string): string | undefined {
     return "svg";
   }
 }
+
+export function isUnknownElement(tag: string): boolean {
+  return !isReservedTag(tag);
+}

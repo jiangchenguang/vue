@@ -1,15 +1,20 @@
-import Vue from "src/core/index";
+import VueCtor from "src/core/index";
 import { Component } from "types/component";
 import { mountComponent } from "src/core/instance/lifeCycle";
 import {
-  query
+  query,
+  isUnknownElement,
 } from "src/platforms/web/util/index";
+import Vue from "types/vue";
 
-Vue.prototype.$mount = function(
+// @ts-ignore
+(VueCtor as Vue).config.isUnknownElement = isUnknownElement;
+
+VueCtor.prototype.$mount = function(
   el?: string | Element
 ): Component {
   el = el && query(el);
   return mountComponent(this, el);
 }
 
-export default Vue;
+export default VueCtor;

@@ -5,4 +5,8 @@ export default class Vue {
 
   readonly $options: ComponentOptions;
   readonly $el: Element;
+
+  static config: {
+    isUnknownElement: (str?: string) => boolean;
+  }
 }
