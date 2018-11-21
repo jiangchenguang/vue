@@ -16,6 +16,10 @@ export function appendChild(parentNode: Node, newNode: Node) {
   parentNode.appendChild(newNode);
 }
 
+export function removeChild(node: Node, child: Node) {
+  node.removeChild(child);
+}
+
 export function nextSibling(node: Node): Node {
   return node.nextSibling;
 }

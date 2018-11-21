@@ -7,6 +7,7 @@ export default class VNode {
   context?: Component;
   text?: string;
   elm?: Node;
+  key?: string;
   ns?: string;
 
   componentOptions: any;
@@ -23,6 +24,7 @@ export default class VNode {
     this.context = context;
     this.children = children;
     this.text = text;
+    this.key = data && data.key;
   }
 }
 
