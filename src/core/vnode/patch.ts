@@ -56,7 +56,6 @@ export function createPathFunction(nodeOpts: NodeOpts) {
         addVnodes(<Element>elm, null, ch, 0, ch.length - 1);
       } else if (isDef(oldCh)) {
         removeVnodes(oldCh, 0, oldCh.length - 1);
-        console.error("todo clear oldCh");
       } else if (isDef(oldVnode.text)) {
         nodeOpts.setTextContent(elm, "");
       }
@@ -81,7 +80,7 @@ export function createPathFunction(nodeOpts: NodeOpts) {
     // 使用新的列表去更新旧的列表
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (isUndef(oldStartVnode)) {
-        oldEndVnode = oldCh[++oldStartIdx];
+        oldStartVnode = oldCh[++oldStartIdx];
       } else if (isUndef(oldEndVnode)) {
         oldEndVnode = oldCh[--oldEndIdx];
       } else if (sameVnode(oldStartVnode, newStartVnode)) {
@@ -113,9 +112,14 @@ export function createPathFunction(nodeOpts: NodeOpts) {
           createElm(newStartVnode, parentElm, oldStartVnode.elm);
         } else {
           toMoveVnodeInOld = oldCh[idxInOld];
-          patchVnode(toMoveVnodeInOld, newStartVnode);
-          nodeOpts.insertBefore(parentElm, toMoveVnodeInOld.elm, oldStartVnode.elm);
-          oldCh[idxInOld] = null;
+          if (sameVnode(toMoveVnodeInOld, newStartVnode)) {
+            patchVnode(toMoveVnodeInOld, newStartVnode);
+            nodeOpts.insertBefore(parentElm, toMoveVnodeInOld.elm, oldStartVnode.elm);
+            oldCh[idxInOld] = null;
+          } else {
+            // 相同的key，但是tag变化了，还是要新建
+            createElm(newStartVnode, parentElm, oldStartVnode.elm);
+          }
         }
 
         newStartVnode = ch[++newStartIdx];
