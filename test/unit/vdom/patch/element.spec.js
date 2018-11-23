@@ -3,7 +3,7 @@ import VNode, { createTextVNode } from "src/core/vnode/vnode";
 
 describe("vnode patch: element", function (){
   it("should create an element", function (){
-    const vnode = new VNode("p", null, null, [ createTextVNode("hello world") ]);
+    const vnode = new VNode("p", null, [ createTextVNode("hello world") ]);
     const elm   = patch(null, vnode, null, null);
     expect(elm.tagName).toBe("P");
     expect(elm.outerHTML).toBe("<p>hello world</p>");
@@ -19,13 +19,13 @@ describe("vnode patch: element", function (){
   })
 
   it("should create an element which have text content", function (){
-    const vnode = new VNode("div", null, null, [createTextVNode("hello world")]);
+    const vnode = new VNode("div", null, [createTextVNode("hello world")]);
     const elm = patch(null, vnode);
     expect(elm.innerHTML).toBe("hello world");
   })
 
   it("should create an element which have a span and text content", function (){
-    const vnode = new VNode("div", null, null, [
+    const vnode = new VNode("div", null, [
       new VNode("span"),
       createTextVNode("hello world")
     ]);
