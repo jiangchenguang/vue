@@ -1,5 +1,8 @@
 import * as nodeOpts from "./node-opts";
 import { createPathFunction } from "src/core/vnode/patch";
+import platformModules from "./modules/index";
 import { PathFunction } from "types/patch";
 
-export const patch: PathFunction = createPathFunction(nodeOpts);
+const modules = platformModules;
+
+export const patch: PathFunction = createPathFunction({nodeOpts, modules});

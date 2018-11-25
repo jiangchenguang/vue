@@ -1,7 +1,11 @@
 import config from "../config";
 import VNode from "src/core/vnode/vnode";
-import { NodeOpts } from "types/patch";
+import { BackEnd, modulePathFunc, NodeOpts } from "types/patch";
 import { isPrimitive } from "src/shared/util";
+
+const hooks = ["create", "update"];
+
+const emptyVnode = new VNode("", {}, []);
 
 function isUndef(s: any): boolean {
   return s == null;
@@ -29,7 +33,22 @@ function createOldKey2Idx(vnodes: VNode[], startIdx: number, endIdx: number): { 
   return map;
 }
 
-export function createPathFunction(nodeOpts: NodeOpts) {
+export function createPathFunction(backEnd: BackEnd) {
+  const {nodeOpts, modules} = backEnd;
+  const cbs: { [key: string]: modulePathFunc[] } = {};
+  for (let hook of hooks) {
+    cbs[hook] = [];
+    for (let module of modules) {
+      if (module[hook] !== undefined) cbs[hook].push(module[hook]);
+    }
+  }
+
+  function invokeCreateHooks(vnode: VNode) {
+    for (let i = 0; i < cbs.create.length; i++) {
+      cbs.create[i](emptyVnode, vnode);
+    }
+  }
+
   function insert(parent: Node, elm: Node, ref?: Node) {
     if (parent) {
       if (ref) {
@@ -47,6 +66,12 @@ export function createPathFunction(nodeOpts: NodeOpts) {
     let ch = vnode.children;
 
     const elm = vnode.elm = oldVnode.elm;
+
+    if (isDef(vnode.data)) {
+      for (let i = 0; i < cbs.update.length; i++) {
+        cbs.update[i](oldVnode, vnode);
+      }
+    }
 
     if (isUndef(vnode.text)) {
       if (isDef(oldCh) && isDef(ch)) {
@@ -73,7 +98,7 @@ export function createPathFunction(nodeOpts: NodeOpts) {
     let newEndIdx = ch.length - 1;
     let newStartVnode = ch[0];
     let newEndVnode = ch[newEndIdx];
-    let oldKeyToIdx: {[key: string]: number};
+    let oldKeyToIdx: { [key: string]: number };
     let idxInOld: number;
     let toMoveVnodeInOld: VNode;
 
@@ -160,6 +185,9 @@ export function createPathFunction(nodeOpts: NodeOpts) {
 
       vnode.elm = nodeOpts.createElement(<string>tag, vnode);
       createChildren(vnode, children);
+      if (isDef(vnode.data)) {
+        invokeCreateHooks(vnode);
+      }
       insert(parentElm, vnode.elm, refElm);
     } else {
       vnode.elm = nodeOpts.createTextNode(vnode.text);

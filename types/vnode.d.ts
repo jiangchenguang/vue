@@ -1,3 +1,4 @@
 declare interface VNodeData {
-  key?: string
+  key?: string;
+  attrs?: { [key: string]: any }
 }
