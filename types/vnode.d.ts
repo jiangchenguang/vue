@@ -4,4 +4,7 @@ declare interface VNodeData {
 
   staticClass?: string;
   class?: any;
+
+  staticStyle?: { [key: string]: any };
+  style?: { [key: string]: any };
 }

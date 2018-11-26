@@ -55,3 +55,13 @@ export function extend(to: any, from: any) {
   }
   return to;
 }
+
+export function toObject(arr: Object[]): Object {
+  const res = {};
+  for (let item of arr) {
+    if (item) {
+      extend(res, item);
+    }
+  }
+  return res;
+}
