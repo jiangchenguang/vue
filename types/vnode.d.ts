@@ -9,4 +9,6 @@ declare interface VNodeData {
   style?: { [key: string]: any };
 
   domProps?: { [key: string]: any };
+
+  on?: { [key: string]: any }
 }
