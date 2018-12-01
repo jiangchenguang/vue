@@ -1,6 +1,6 @@
 import VNode from "src/core/vnode/vnode";
 
-export type PathFunction = (oldVnode: VNode, vnode: VNode, parentElm: Node, refElm: Node) => Node | void;
+export type PatchFunction = (oldVnode: VNode, vnode: VNode, parentElm: Node, refElm: Node) => Node | void;
 
 export type BackEnd = {
   nodeOpts: NodeOpts,

@@ -33,7 +33,7 @@ function createOldKey2Idx(vnodes: VNode[], startIdx: number, endIdx: number): { 
   return map;
 }
 
-export function createPathFunction(backEnd: BackEnd) {
+export function createPatchFunction(backEnd: BackEnd) {
   const {nodeOpts, modules} = backEnd;
   const cbs: { [key: string]: modulePathFunc[] } = {};
   for (let hook of hooks) {
@@ -212,7 +212,7 @@ export function createPathFunction(backEnd: BackEnd) {
     }
   }
 
-  return function path(oldVnode: VNode, vnode: VNode, parentElm: Element, refEle: Node): Node | void {
+  return function patch(oldVnode: VNode, vnode: VNode, parentElm: Element, refEle: Node): Node | void {
 
     if (!oldVnode) {
       createElm(vnode, parentElm, refEle);

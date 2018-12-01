@@ -314,7 +314,6 @@ function processAttrs(el: ASTElement) {
 
         if (bindRE.test(name)) {
           name = name.replace(bindRE, "");
-          // todo: props 和 attrs的区别？
           if (platformMustUseProp(el.tag, name, el.attrsMap.type)) {
             addProp(el, name, value);
           } else {
