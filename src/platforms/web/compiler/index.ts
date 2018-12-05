@@ -8,6 +8,7 @@ import {
   isReservedTag
 } from "../util/index";
 import { CompilerOptions } from "types/compilerOptions";
+import { createCompiler } from "src/compiler/index";
 
 export const baseOptions: CompilerOptions = {
   modules,
@@ -15,4 +16,11 @@ export const baseOptions: CompilerOptions = {
   mustUseProp,
   isReservedTag,
   getTagNamespace,
+}
+
+const {compile, compileToFunction} = createCompiler(baseOptions);
+
+export {
+  compile,
+  compileToFunction
 }

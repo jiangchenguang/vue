@@ -110,7 +110,7 @@ export default class Watcher {
     try {
       value = this.getter.call(vm, vm);
     } catch (e) {
-      console.error("get error!");
+      console.error("get error!", e);
     } finally {
       if (this.deep) {
         traverse(value);

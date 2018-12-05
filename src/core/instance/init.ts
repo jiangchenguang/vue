@@ -14,6 +14,8 @@ export function initMixin(Vue: Function) {
 
     vm.$options = options;
 
+    vm._renderProxy = vm;
+
     initRender(vm);
     initLifeCycle(vm);
     initState(vm);

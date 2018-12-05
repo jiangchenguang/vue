@@ -1,5 +1,13 @@
-let toString = Object.prototype.toString;
+let _toString = Object.prototype.toString;
 let hasOwnProperty = Object.prototype.hasOwnProperty;
+
+export function isDef(v: any): boolean {
+  return v !== null && v !== undefined;
+}
+
+export function isUndef(v: any): boolean {
+  return v === null || v === undefined;
+}
 
 export function remove(arr: Array<any>, item: any): Array<any> | void {
   if (arr.length) {
@@ -19,7 +27,14 @@ export function hasOwn(obj: object, key: string): boolean {
 }
 
 export function isPlainObject(obj: any): boolean {
-  return toString.call(obj) === "[object Object]";
+  return _toString.call(obj) === "[object Object]";
+}
+
+export function toString(v: any): string {
+  return v == null
+    ? ''
+    : typeof v === 'object'
+      ? JSON.stringify(v) : String(v);
 }
 
 export function makeMap(str: string): (val: string) => boolean {

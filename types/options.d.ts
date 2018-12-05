@@ -8,6 +8,7 @@ export type ComponentOptions = {
   methods?: { [key: string]: Function };
 
   el?: string | Element;
+  template?: string;
   render?: (h: () => VNode) => VNode;
 
   components?: {[index: string]: Component}

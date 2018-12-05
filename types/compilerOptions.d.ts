@@ -1,9 +1,16 @@
+import VNode from "src/core/vnode/vnode";
+
 type transformFromNodeFunction = (el: ASTElement) => void;
 type genDataFunction = (el: ASTElement) => string;
 type CompilerModule = {
   transformNode?: transformFromNodeFunction;
   genData?: genDataFunction;
 }
+
+type baseCompiler = (template: string, options?: CompilerOptions) => { ast: ASTNode, render: string };
+export type Compile = (template: string, options?: CompilerOptions) => { ast: ASTNode, render: string };
+export type CreateCompiler = (baseOption: CompilerOptions) => { compile: Compile, compileToFunction: Function };
+export type CreateCompilerCreator = (fn: baseCompiler) => CreateCompiler;
 
 export type CompilerOptions = {
   modules: CompilerModule[],

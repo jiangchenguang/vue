@@ -2,6 +2,7 @@ import Vue from "./vue";
 import VNode from "src/core/vnode/vnode";
 import { ComponentOptions } from "types/options";
 import Watcher from "src/core/observer/watcher";
+import { PatchFunction } from "types/patch";
 
 export interface Component {
   $el: any;
@@ -17,6 +18,12 @@ export interface Component {
   _data: object;
   _watcher: Watcher;
 
-  $createElement: (tag:string, data?:object) => VNode;
+  _renderProxy: this;
+  _vnode: VNode;
+  __patch__: PatchFunction;
+
+  $createElement: (tag: any, data: any, children: any, normalizeType: any) => VNode;
+
+  _c: (tag: any, data: any, children: any, normalizeType: any) => VNode;
 }
 

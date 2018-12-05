@@ -1,17 +1,17 @@
-import { CompilerOptions } from "types/compilerOptions";
+import { baseCompiler, CompilerOptions, CreateCompiler } from "types/compilerOptions";
+import { createCompileToFunction } from "src/compiler/to-function";
 
-export function createCompilerCreator(baseCompiler: Function): Function{
-  return function createCompiler(baseOptions: CompilerOptions){
-    function compiler(template: string, options?: object){
+export function createCompilerCreator(baseCompiler: baseCompiler):  CreateCompiler {
+  return function createCompiler(baseOptions: CompilerOptions) {
+    function compile(template: string, options?: CompilerOptions) {
       let finalOptions = baseOptions;
 
-      let compiled = baseCompiler(template, finalOptions);
-
-      return compiled;
+      return baseCompiler(template, finalOptions);
     }
 
     return {
-      compiler
+      compile,
+      compileToFunction: createCompileToFunction(compile)
     }
   }
 }
