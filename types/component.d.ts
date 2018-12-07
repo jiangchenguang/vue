@@ -22,6 +22,7 @@ export interface Component {
   _vnode: VNode;
   __patch__: PatchFunction;
 
+  $mount: (el: string | Element) => void;
   $createElement: (tag: any, data: any, children: any, normalizeType: any) => VNode;
 
   _c: (tag: any, data: any, children: any, normalizeType: any) => VNode;

@@ -19,5 +19,9 @@ export function initMixin(Vue: Function) {
     initRender(vm);
     initLifeCycle(vm);
     initState(vm);
+
+    if (vm.$options.el) {
+      vm.$mount(vm.$options.el);
+    }
   }
 }

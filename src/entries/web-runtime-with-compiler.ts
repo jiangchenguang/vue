@@ -14,15 +14,31 @@ VueCtor.prototype.$mount = function (
     const options = this.$options;
     const template = options.template;
     let res;
-    if (typeof template === 'string') {
-      res = compileToFunction(options.template.trim());
-    } else if (template.nodeType) {
-      res = compileToFunction(template.innerHTML);
+    if (template) {
+      if (typeof template === 'string') {
+        res = compileToFunction(options.template.trim());
+      } else if (template.nodeType) {
+        res = compileToFunction(template.innerHTML);
+      } else {
+        return;
+      }
+    } else if (el) {
+      res = compileToFunction(getOuterHtml(options.el));
     }
 
     options.render = res.render;
   }
   return mount.call(this, el);
+}
+
+function getOuterHtml(el: HTMLElement) {
+  if (el.outerHTML) {
+    return el.outerHTML;
+  } else {
+    const node = document.createElement("div");
+    node.appendChild(el.cloneNode(true));
+    return node.innerHTML;
+  }
 }
 
 export default VueCtor;
