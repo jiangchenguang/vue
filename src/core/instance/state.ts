@@ -1,5 +1,6 @@
 import { observe } from "src/core/observer/index";
 import { Component } from "types/component";
+import { isPlainObject } from "src/shared/util";
 
 const sharedPropertyDescription: PropertyDescriptor = {
   configurable: true,
@@ -28,7 +29,15 @@ export function initState(vm: Component) {
 }
 
 function initData(vm: Component) {
-  let data = vm._data = vm.$options.data;
+  let data = vm.$options.data;
+  data = vm._data = typeof data === 'function'
+    ? getData(data, vm)
+    : data || {};
+
+  if (!isPlainObject(data)) {
+    console.error('data functions should return an object');
+    data = {};
+  }
 
   let keys = Object.keys(data);
   let len = keys.length;
@@ -39,16 +48,26 @@ function initData(vm: Component) {
   observe(vm.$options.data);
 }
 
+function getData(dataFn: Function, vm: Component): any {
+  try {
+    return dataFn.call(vm);
+  } catch (e) {
+    return {};
+  }
+}
+
 function initMethods(vm: Component) {
 
 }
 
 export function stateMixin(Vue: Function) {
-  const dataDef = {
-    get: function(){
-      return this._data;
-    }
-  };
+  const dataDef: PropertyDescriptor = {};
+  dataDef.get = function () {
+    return this._data;
+  }
+  dataDef.set = function () {
+    console.error(`Avoid replacing instance root $data`);
+  }
 
   Object.defineProperty(Vue.prototype, "$data", dataDef);
 }
