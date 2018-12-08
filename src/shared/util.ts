@@ -1,5 +1,7 @@
-let _toString = Object.prototype.toString;
-let hasOwnProperty = Object.prototype.hasOwnProperty;
+import { Component } from "types/component";
+
+const _toString = Object.prototype.toString;
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 export function isDef(v: any): boolean {
   return v !== null && v !== undefined;
@@ -62,6 +64,19 @@ export function isPrimitive(value: any): boolean {
 
 export function no() {
   return false;
+}
+
+export function noop() {
+}
+
+export function bind(fn: Function, contenxt: object): Function {
+  return function (a: any) {
+    let len = arguments.length;
+    return len
+      ? len > 1
+        ? fn.apply(contenxt, arguments) : fn.call(contenxt, a)
+      : fn.call(contenxt);
+  };
 }
 
 export function extend(to: any, from: any) {

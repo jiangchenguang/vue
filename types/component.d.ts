@@ -26,5 +26,8 @@ export interface Component {
   $createElement: (tag: any, data: any, children: any, normalizeType: any) => VNode;
 
   _c: (tag: any, data: any, children: any, normalizeType: any) => VNode;
+
+  // methods
+  [key: string]: any
 }
 

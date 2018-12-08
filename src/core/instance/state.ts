@@ -1,6 +1,6 @@
 import { observe } from "src/core/observer/index";
 import { Component } from "types/component";
-import { isPlainObject } from "src/shared/util";
+import { bind, hasOwn, isPlainObject, noop } from "src/shared/util";
 
 const sharedPropertyDescription: PropertyDescriptor = {
   configurable: true,
@@ -30,6 +30,8 @@ export function initState(vm: Component) {
 
 function initData(vm: Component) {
   let data = vm.$options.data;
+  let methods = vm.$options.methods;
+
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {};
@@ -42,6 +44,10 @@ function initData(vm: Component) {
   let keys = Object.keys(data);
   let len = keys.length;
   while (len--) {
+    if (methods && hasOwn(methods, keys[len])) {
+      console.error(`method "${keys[len]}" has been defined as a data property`);
+    }
+
     proxy(vm, "_data", keys[len]);
   }
 
@@ -57,7 +63,18 @@ function getData(dataFn: Function, vm: Component): any {
 }
 
 function initMethods(vm: Component) {
+  const methods = vm.$options.methods;
+  if (!isPlainObject(methods)) {
+    console.error(`methods must be object`);
+    return;
+  }
 
+  for (let key in methods) {
+    vm[key] = methods[key] == null ? noop : bind(methods[key], vm);
+    if (methods[key] == null) {
+      console.error(`method "${key}" has an undefined value!`);
+    }
+  }
 }
 
 export function stateMixin(Vue: Function) {
