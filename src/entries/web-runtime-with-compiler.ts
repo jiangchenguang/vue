@@ -12,21 +12,24 @@ VueCtor.prototype.$mount = function (
   el = el && query(el);
   if (!this.$options.render) {
     const options = this.$options;
-    const template = options.template;
-    let res;
+    let template = options.template;
     if (template) {
       if (typeof template === 'string') {
-        res = compileToFunction(options.template.trim());
+        template = template.trim();
       } else if (template.nodeType) {
-        res = compileToFunction(template.innerHTML);
+        template = template.innerHTML;
       } else {
         return;
       }
     } else if (el) {
-      res = compileToFunction(getOuterHtml(options.el));
+      template = getOuterHtml(options.el);
     }
 
-    options.render = res.render;
+    if (template) {
+      const res = compileToFunction(template);
+      options.render = res && res.render;
+    }
+
   }
   return mount.call(this, el);
 }

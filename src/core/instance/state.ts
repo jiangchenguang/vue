@@ -20,12 +20,12 @@ export function proxy(target: any, sourceKey: string, key: any): void {
 
 export function initState(vm: Component) {
   const opts = vm.$options;
+  if (opts.methods) initMethods(vm);
   if (opts.data) {
     initData(vm);
   } else {
     observe(opts.data = {});
   }
-  if (opts.methods) initMethods(vm);
 }
 
 function initData(vm: Component) {

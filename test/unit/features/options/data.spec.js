@@ -42,6 +42,18 @@ describe("options - data", function (){
   xit('should have access to prop', function (){
   })
 
-  xit('should have access to method', function (){
+  it('should have access to method', function (){
+    const vm = new Vue({
+      data (){
+        return this.get()
+      },
+      methods: {
+        get (){
+          return { a: 1 };
+        }
+      }
+    })
+
+    expect(vm.a).toBe(1);
   })
 })

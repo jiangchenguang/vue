@@ -18,6 +18,11 @@ export function mountComponent(vm: Component, el?: Element) {
   vm.$el = el;
   if (!vm.$options.render) {
     vm.$options.render = createEmptyVNode;
+    if (vm.$options.template || vm.$options.el || el) {
+      console.error(`you are using the running-only build of Vue`)
+    } else {
+      console.error(`Failed to mount component: template or render function not defined`)
+    }
   }
 
 
