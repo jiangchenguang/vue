@@ -1,7 +1,7 @@
 import Vue from "./vue";
 import VNode from "src/core/vnode/vnode";
 import { ComponentOptions } from "types/options";
-import Watcher from "src/core/observer/watcher";
+import Watcher, { userWatcherOpts } from "src/core/observer/watcher";
 import { PatchFunction } from "types/patch";
 
 export interface Component {
@@ -23,6 +23,7 @@ export interface Component {
   __patch__: PatchFunction;
 
   $mount: (el: string | Element) => void;
+  $watch:(key: string | Function, cb: string | userWatcherOpts | Function, options?: any) => void;
   $createElement: (tag: any, data: any, children: any, normalizeType: any) => VNode;
 
   _c: (tag: any, data: any, children: any, normalizeType: any) => VNode;

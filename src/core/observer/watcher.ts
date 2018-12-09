@@ -8,6 +8,18 @@ import { Observer } from "src/core/observer/index";
 
 let uid: number = 0;
 
+/**
+ * 用户使用的watcher选项
+ */
+export type userWatcherOpts = {
+  handler?: string | Function,
+  deep?: boolean,
+  immediate?: boolean,
+}
+
+/**
+ * 内部使用的watcher选项
+ */
 export interface watcherOptions {
   deep?: boolean;
   user?: boolean;
@@ -33,7 +45,7 @@ export default class Watcher {
 
   constructor(
     vm: any,
-    expression: Function | string,
+    expression: string | Function,
     cb?: Function,
     options?: watcherOptions) {
     this.id = uid++;
