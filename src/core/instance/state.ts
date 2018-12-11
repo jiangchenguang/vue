@@ -1,7 +1,8 @@
 import { observe } from "src/core/observer/index";
-import { Component } from "types/component";
+import Dep from "src/core/observer/dep";
+import Watcher, { userWatcherOpts, watcherOptions } from "src/core/observer/watcher";
 import { bind, hasOwn, isPlainObject, noop } from "src/shared/util";
-import Watcher, { userWatcherOpts } from "src/core/observer/watcher";
+import { Component } from "types/component";
 
 const sharedPropertyDescription: PropertyDescriptor = {
   configurable: true,
@@ -28,6 +29,7 @@ export function initState(vm: Component) {
     observe(opts.data = {});
   }
 
+  if (opts.computed) initComputed(vm);
   if (opts.watch) initWatcher(vm);
 }
 
@@ -56,6 +58,72 @@ function initData(vm: Component) {
 
   observe(vm.$options.data);
 }
+
+const computedOpts: watcherOptions = {
+  lazy: true
+}
+
+function initComputed(vm: Component) {
+  const watchers: { [key: string]: Watcher }
+    = vm._computedWatcher
+    = Object.create(null);
+  const computed = vm.$options.computed;
+  let getter: Function;
+  for (let key in computed) {
+    getter = typeof computed[key] === 'function'
+      ? <Function>computed[key]
+      : (<{ get?: Function; set?: (v: any) => void }>computed[key]).get;
+    if (getter === undefined) {
+      console.error(`No getter function has defined on computed property:${key}`);
+      getter = noop;
+    }
+    watchers[key] = new Watcher(vm, getter, noop, computedOpts);
+
+    if (!(key in vm)) {
+      defineComputed(vm, key, computed[key]);
+    } else if (key in vm.$data) {
+      console.error(`The computed property '${key}" has defined in data`);
+    }
+  }
+}
+
+function defineComputed(
+  vm: Component,
+  key: string,
+  value: Function | { get?: Function; set?: (v: any) => void }
+) {
+  if (typeof value === 'function') {
+    value = <Function>value;
+    sharedPropertyDescription.get = createComputedGetter(key);
+    sharedPropertyDescription.set = noop;
+  } else {
+    value = <{ get?: Function; set?: (v: any) => void }>value;
+    sharedPropertyDescription.get = value.get ?
+      createComputedGetter(key) : noop;
+    sharedPropertyDescription.set = value.set;
+  }
+
+
+  Object.defineProperty(vm, key, sharedPropertyDescription);
+}
+
+function createComputedGetter(key: string) {
+  return function () {
+    const vm: Component = this;
+    const watcher = vm._computedWatcher && vm._computedWatcher[key];
+    if (watcher) {
+      if (watcher.dirty) {
+        watcher.evaluate();
+      }
+      if (Dep.target) {
+        watcher.depend();
+      }
+
+      return watcher.value;
+    }
+  }
+}
+
 
 function initWatcher(vm: Component) {
   const watcher = vm.$options.watch || {};

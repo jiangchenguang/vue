@@ -17,13 +17,14 @@ export interface Component {
   _isVue: true;
   _data: object;
   _watcher: Watcher;
+  _computedWatcher: { [key: string]: Watcher };
 
   _renderProxy: this;
   _vnode: VNode;
   __patch__: PatchFunction;
 
   $mount: (el: string | Element) => void;
-  $watch:(key: string | Function, cb: string | userWatcherOpts | Function, options?: any) => void;
+  $watch: (key: string | Function, cb: string | userWatcherOpts | Function, options?: any) => void;
   $createElement: (tag: any, data: any, children: any, normalizeType: any) => VNode;
 
   _c: (tag: any, data: any, children: any, normalizeType: any) => VNode;

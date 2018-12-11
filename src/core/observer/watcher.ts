@@ -172,8 +172,13 @@ export default class Watcher {
     }
   }
 
-  // todo
+  /**
+   * 将计算属性的依赖传递给引用自己的计算属性或watcher实例
+   */
   depend() {
+    for (let dep of this.deps) {
+      dep.depend();
+    }
   }
 }
 

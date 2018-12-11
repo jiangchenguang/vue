@@ -6,7 +6,6 @@ import {
   isObject,
   isPlainObject,
 } from "src/core/util/index";
-import has = Reflect.has;
 
 export class Observer {
   value: any;
