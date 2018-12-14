@@ -21,12 +21,13 @@ export function proxy(target: any, sourceKey: string, key: any): void {
 }
 
 export function initState(vm: Component) {
+  vm._watchers = [];
   const opts = vm.$options;
   if (opts.methods) initMethods(vm);
   if (opts.data) {
     initData(vm);
   } else {
-    observe(opts.data = {});
+    observe(vm._data = {}, true);
   }
 
   if (opts.computed) initComputed(vm);
@@ -56,7 +57,7 @@ function initData(vm: Component) {
     proxy(vm, "_data", keys[len]);
   }
 
-  observe(vm.$options.data);
+  observe(vm.$options.data, true);
 }
 
 const computedOpts: watcherOptions = {
@@ -82,7 +83,7 @@ function initComputed(vm: Component) {
     if (!(key in vm)) {
       defineComputed(vm, key, computed[key]);
     } else if (key in vm.$data) {
-      console.error(`The computed property '${key}" has defined in data`);
+      console.error(`The computed property '${key}' has defined in data`);
     }
   }
 }

@@ -10,10 +10,12 @@ import {
 export class Observer {
   value: any;
   dep: Dep;
+  vmCount: number;
 
   constructor(value: object | Array<any>) {
     this.value = value;
     this.dep = new Dep();
+    this.vmCount = 0;
     def(value, "__ob__", this);
 
     if (Array.isArray(value)) {
@@ -42,7 +44,7 @@ function protoAugment(target: any, src: object): void {
   target.__proto__ = src;
 }
 
-export function observe(value: any): Observer | undefined {
+export function observe(value: any, asRoot = false): Observer {
   if (!isObject(value)) return undefined;
 
   let ob: Observer;
@@ -52,6 +54,10 @@ export function observe(value: any): Observer | undefined {
     (Array.isArray(value) || isPlainObject(value)) &&
     Object.isExtensible(value)) {
     ob = new Observer(value);
+  }
+
+  if (asRoot && ob) {
+    ob.vmCount++;
   }
 
   return ob;
@@ -121,7 +127,7 @@ export function set(obj: any, key: string | number, val: any): void {
 }
 
 export function del(obj: any, key: string | number): void {
-  if (Array.isArray(obj)){
+  if (Array.isArray(obj)) {
     obj.splice(<number>key, 1);
     return;
   }
@@ -131,7 +137,7 @@ export function del(obj: any, key: string | number): void {
   }
 
   let ob: Observer = obj.__ob__;
-  if (obj._isVue){
+  if (obj._isVue) {
     return;
   }
 

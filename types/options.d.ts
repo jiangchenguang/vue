@@ -1,4 +1,3 @@
-import Vue from "./vue";
 import VNode from "src/core/vnode/vnode";
 import { Component } from "types/component";
 
@@ -11,6 +10,14 @@ export type ComponentOptions = {
   el?: string | Element;
   template?: string;
   render?: (h: () => VNode) => VNode;
+
+  // lifecycle hooks
+  beforeCreate?: Function[];
+  created?: Function[];
+  beforeMount?: Function[];
+  mounted?: Function[];
+  beforeUpdate?: Function[];
+  beforeDestroy?: Function[];
 
   components?: { [index: string]: Component }
 }

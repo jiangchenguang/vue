@@ -1,10 +1,12 @@
 import Dep, { pushTarget, popTarget } from "./dep";
 import { queueWatcher } from "./scheduler";
 import {
-  isObject, isPlainObject,
+  isObject,
+  isPlainObject,
   parsePath,
 } from "src/core/util/index";
 import { Observer } from "src/core/observer/index";
+import { Component } from "types/component";
 
 let uid: number = 0;
 
@@ -29,7 +31,7 @@ export interface watcherOptions {
 
 export default class Watcher {
   id: number;
-  vm: any;
+  vm: Component;
   getter: Function;
   cb: Function;
   deep: boolean;
@@ -42,14 +44,17 @@ export default class Watcher {
   depIds: Set<number>;
   newDepIds: Set<number>;
   value: any;
+  active: boolean;
 
   constructor(
-    vm: any,
+    vm: Component,
     expression: string | Function,
     cb?: Function,
-    options?: watcherOptions) {
-    this.id = uid++;
+    options?: watcherOptions
+  ) {
     this.vm = vm;
+    vm._watchers.push(this);
+    this.id = uid++;
     if (typeof expression === "function") {
       this.getter = expression;
     } else {
@@ -60,6 +65,7 @@ export default class Watcher {
     this.depIds = new Set();
     this.newDeps = [];
     this.newDepIds = new Set();
+    this.active = true;
 
     if (options) {
       this.deep = options.deep || false;
@@ -157,17 +163,19 @@ export default class Watcher {
    * 用于watch的求值
    */
   run() {
-    let value = this.get();
-    if (this.value !== value ||
-      isObject(value) ||
-      this.deep
-    ) {
-      let oldValue = this.value;
-      this.value = value;
-      try {
-        this.cb.call(this.vm, this.value, oldValue);
-      } catch (e) {
-        console.warn("run failed!");
+    if (this.active) {
+      let value = this.get();
+      if (this.value !== value ||
+        isObject(value) ||
+        this.deep
+      ) {
+        let oldValue = this.value;
+        this.value = value;
+        try {
+          this.cb.call(this.vm, this.value, oldValue);
+        } catch (e) {
+          console.warn("run failed!");
+        }
       }
     }
   }
@@ -178,6 +186,16 @@ export default class Watcher {
   depend() {
     for (let dep of this.deps) {
       dep.depend();
+    }
+  }
+
+  tearDown() {
+    if (this.active) {
+      // 将自身移出订阅列表
+      for (const dep of this.deps) {
+        dep.removeSub(this);
+      }
+      this.active = false;
     }
   }
 }

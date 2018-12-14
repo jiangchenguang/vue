@@ -1,9 +1,10 @@
 import { createElement } from "src/core/vnode/create-element";
-import VNode, { createTextVNode } from "src/core/vnode/vnode";
+import VNode, { createEmptyVNode, createTextVNode } from "src/core/vnode/vnode";
 import { toString } from "src/shared/util";
 import { Component } from "types/component";
 
 export function initRender(vm: Component) {
+  vm._vnode = null;
   vm._c = (a: any, b: any, c: any, d: any) => createElement(vm, a, b, c, d, false);
   vm.$createElement = (a: any, b: any, c: any, d: any) => createElement(vm, a, b, c, d, true);
 }
@@ -20,6 +21,9 @@ export function renderMixin(Vue: Function) {
       console.error('render failed!', e);
     }
 
+    if (!(vnode instanceof VNode)) {
+      vnode = createEmptyVNode();
+    }
     return vnode;
   }
 

@@ -213,6 +213,9 @@ export function createPatchFunction(backEnd: BackEnd) {
   }
 
   return function patch(oldVnode: VNode, vnode: VNode, parentElm: Element, refEle: Node): Node | void {
+    if (isUndef(vnode)) {
+      return;
+    }
 
     if (!oldVnode) {
       createElm(vnode, parentElm, refEle);
