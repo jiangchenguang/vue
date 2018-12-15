@@ -212,6 +212,10 @@ export function stateMixin(Vue: Function) {
     if (option.immediate) {
       cb.call(vm, watcher.value);
     }
+
+    return function unWatch(){
+      watcher.tearDown();
+    }
   }
 }
 
