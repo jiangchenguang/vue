@@ -14,6 +14,8 @@ export interface Component {
   $watch: (key: string | Function, cb: string | userWatcherOpts | Function, options?: any) => void;
   $createElement: (tag: any, data: any, children: any, normalizeType: any) => VNode;
   $destroy: () => void;
+  $set: (obj: any, key: string | number, val: any) => void;
+  $delete: (obj: any, key: string | number) => void;
 
   // private properties
   _uid: number;

@@ -4,6 +4,7 @@ import {
   isObject,
   isPlainObject,
   parsePath,
+  remove,
 } from "src/core/util/index";
 import { Observer } from "src/core/observer/index";
 import { Component } from "types/component";
@@ -191,6 +192,8 @@ export default class Watcher {
 
   tearDown() {
     if (this.active) {
+      remove(this.vm._watchers, this);
+
       // 将自身移出订阅列表
       for (const dep of this.deps) {
         dep.removeSub(this);

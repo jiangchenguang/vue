@@ -1,4 +1,4 @@
-import { observe } from "src/core/observer/index";
+import { observe, set, del } from "src/core/observer/index";
 import Dep from "src/core/observer/dep";
 import Watcher, { userWatcherOpts, watcherOptions } from "src/core/observer/watcher";
 import { bind, hasOwn, isPlainObject, noop } from "src/shared/util";
@@ -196,6 +196,9 @@ export function stateMixin(Vue: Function) {
 
   Object.defineProperty(Vue.prototype, "$data", dataDef);
 
+  Vue.prototype.$set = set;
+  Vue.prototype.$delete = del;
+
   Vue.prototype.$watch = function (
     expOrFn: string | Function,
     cb: string | Function | userWatcherOpts,
@@ -213,7 +216,7 @@ export function stateMixin(Vue: Function) {
       cb.call(vm, watcher.value);
     }
 
-    return function unWatch(){
+    return function unWatch() {
       watcher.tearDown();
     }
   }

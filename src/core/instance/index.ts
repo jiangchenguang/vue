@@ -6,6 +6,9 @@ import { ComponentOptions } from "types/options";
 import { Component } from "types/component";
 
 function VueConstructor(options?: ComponentOptions) {
+  if (!(this instanceof VueConstructor)) {
+    console.error(`Vue is a constructor and must be call with 'new' keyword`);
+  }
   this._init(options);
 }
 

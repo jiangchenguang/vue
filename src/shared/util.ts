@@ -13,7 +13,7 @@ export function isUndef(v: any): boolean {
 
 export function remove(arr: Array<any>, item: any): Array<any> | void {
   if (arr.length) {
-    const idx = arr.indexOf(arr, item);
+    const idx = arr.indexOf(item);
     if (idx > -1) {
       return arr.splice(idx, 1);
     }
