@@ -1,6 +1,7 @@
 import { createElement } from "src/core/vnode/create-element";
 import VNode, { createEmptyVNode, createTextVNode } from "src/core/vnode/vnode";
 import { toString } from "src/shared/util";
+import { nextTick } from "../util/index";
 import { Component } from "types/component";
 
 export function initRender(vm: Component) {
@@ -10,6 +11,10 @@ export function initRender(vm: Component) {
 }
 
 export function renderMixin(Vue: Function) {
+  Vue.prototype.$nextTick = function (fn: Function) {
+    return nextTick(fn, this);
+  }
+
   Vue.prototype._render = function () {
     const vm = <Component>this;
     const {render} = vm.$options;

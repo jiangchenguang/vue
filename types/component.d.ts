@@ -13,9 +13,11 @@ export interface Component {
   $mount: (el: string | Element) => void;
   $watch: (key: string | Function, cb: string | userWatcherOpts | Function, options?: any) => void;
   $createElement: (tag: any, data: any, children: any, normalizeType: any) => VNode;
+  $forceUpdate: () => void;
   $destroy: () => void;
   $set: (obj: any, key: string | number, val: any) => void;
   $delete: (obj: any, key: string | number) => void;
+  $nextTick: (fn: Function) => void | Promise<any>;
 
   // private properties
   _uid: number;

@@ -22,6 +22,13 @@ export function lifeCycleMixin(Vue: Function) {
     vm.$el = vm.__patch__(prevNode, vnode, null, null);
   }
 
+  Vue.prototype.$forceUpdate = function() {
+    const vm = <Component>this;
+    if (vm._watcher) {
+      vm._watcher.update();
+    }
+  }
+
   Vue.prototype.$destroy = function () {
     const vm = <Component>this;
     if (vm._isBeingDestroyed) {

@@ -7,7 +7,7 @@ import Vue from "types/vue";
 
 const mount = VueCtor.prototype.$mount;
 VueCtor.prototype.$mount = function (
-  el?: string | Element
+  el?: string | HTMLElement
 ): Component {
   el = el && query(el);
   if (!this.$options.render) {
@@ -22,7 +22,7 @@ VueCtor.prototype.$mount = function (
         return;
       }
     } else if (el) {
-      template = getOuterHtml(options.el);
+      template = getOuterHtml(<HTMLElement>el);
     }
 
     if (template) {

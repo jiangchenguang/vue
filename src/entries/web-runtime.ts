@@ -14,10 +14,10 @@ import { patch } from "src/platforms/web/runtime/patch";
 VueCtor.prototype.__patch__ = patch;
 
 VueCtor.prototype.$mount = function(
-  el?: string | Element
+  el?: string | HTMLElement
 ): Component {
   el = el && query(el);
-  return mountComponent(this, <Element>el);
+  return mountComponent(this, <HTMLElement>el);
 }
 
 export default VueCtor;
