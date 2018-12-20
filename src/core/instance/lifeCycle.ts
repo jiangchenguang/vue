@@ -1,19 +1,19 @@
-import { Component } from "types/component";
+import vueInstance from "src/core/index";
 import Watcher from "src/core/observer/watcher";
 import VNode, { createEmptyVNode } from "src/core/vnode/vnode";
 import { lifeCycleHooks } from "src/shared/constant";
 import { Observer } from "src/core/observer/index";
 
-export function initLifeCycle(vm: Component) {
+export function initLifeCycle(vm: vueInstance) {
   vm._watcher = null;
   vm._isMounted = false;
   vm._isBeingDestroyed = false;
   vm._isDestroyed = false;
 }
 
-export function lifeCycleMixin(Vue: Function) {
+export function lifeCycleMixin(Vue: typeof vueInstance) {
   Vue.prototype._update = function (vnode: VNode) {
-    const vm = <Component>this;
+    const vm = this;
     if (vm._isMounted) {
       callHook(vm, 'beforeUpdate');
     }
@@ -23,14 +23,14 @@ export function lifeCycleMixin(Vue: Function) {
   }
 
   Vue.prototype.$forceUpdate = function() {
-    const vm = <Component>this;
+    const vm = this;
     if (vm._watcher) {
       vm._watcher.update();
     }
   }
 
   Vue.prototype.$destroy = function () {
-    const vm = <Component>this;
+    const vm = this;
     if (vm._isBeingDestroyed) {
       return;
     }
@@ -56,7 +56,7 @@ export function lifeCycleMixin(Vue: Function) {
   }
 }
 
-export function mountComponent(vm: Component, el?: Element) {
+export function mountComponent(vm: vueInstance, el?: HTMLElement) {
   vm.$el = el;
   if (!vm.$options.render) {
     vm.$options.render = createEmptyVNode;
@@ -80,7 +80,7 @@ export function mountComponent(vm: Component, el?: Element) {
   return vm;
 }
 
-export function callHook(vm: Component, hook: lifeCycleHooks) {
+export function callHook(vm: vueInstance, hook: lifeCycleHooks) {
   const hooks = vm.$options[hook];
   if (hooks) {
     for (let fn of hooks) {

@@ -1,5 +1,3 @@
-import { Component } from "types/component";
-
 const _toString = Object.prototype.toString;
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 

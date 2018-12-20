@@ -1,9 +1,9 @@
-import { Component } from "types/component";
+import Vue from "src/core/index";
 import VNode from "src/core/vnode/vnode";
 
 export function createComponent(
   Ctor: object,
-  context: Component,
+  context: Vue,
   data?: VNodeData,
 ) {
 

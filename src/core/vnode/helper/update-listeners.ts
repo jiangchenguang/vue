@@ -1,4 +1,4 @@
-import { Component } from "types/component";
+import Vue from "src/core/index";
 
 function createFnInvoker(fns: Function | Function[]): Function {
   function invoker() {
@@ -21,7 +21,7 @@ export function updateListeners(
   oldOn: { [key: string]: any },
   add: Function,
   remove: Function,
-  vm: Component
+  vm: Vue
 ) {
   let name: string;
   let cur: any;

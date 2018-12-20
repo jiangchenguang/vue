@@ -1,8 +1,8 @@
+import Vue from "src/core/index";
 import { hasOwn } from "src/shared/util";
 import { camelize, capitalize } from "src/shared/util";
 import { ComponentOptions } from "types/options";
 import { LIFE_CYCLE_HOOKS } from "src/shared/constant";
-import { Component } from "types/component";
 
 export function resolveAsset(
   options: { [key: string]: any },
@@ -45,7 +45,7 @@ LIFE_CYCLE_HOOKS.map(hook => {
 export function mergeOptions(
   parent: ComponentOptions | void,
   child: ComponentOptions,
-  vm: Component
+  vm: Vue
 ) {
   let key;
   let options: { [key: string]: any } = {};
@@ -60,7 +60,7 @@ export function mergeOptions(
     }
   }
 
-  function mergeField(parent: any, child: any, vm: Component, key: string) {
+  function mergeField(parent: any, child: any, vm: Vue, key: string) {
     const strategy = strategies[key] || defaultStrategy;
     return strategy(parent[key], child[key], vm, key);
   }

@@ -1,8 +1,8 @@
+import vueInstance from "src/core/index";
 import { observe, set, del } from "src/core/observer/index";
 import Dep from "src/core/observer/dep";
 import Watcher, { userWatcherOpts, watcherOptions } from "src/core/observer/watcher";
 import { bind, hasOwn, isPlainObject, noop } from "src/shared/util";
-import { Component } from "types/component";
 
 const sharedPropertyDescription: PropertyDescriptor = {
   configurable: true,
@@ -20,7 +20,7 @@ export function proxy(target: any, sourceKey: string, key: any): void {
   Object.defineProperty(target, key, sharedPropertyDescription);
 }
 
-export function initState(vm: Component) {
+export function initState(vm: vueInstance) {
   vm._watchers = [];
   const opts = vm.$options;
   if (opts.methods) initMethods(vm);
@@ -34,7 +34,7 @@ export function initState(vm: Component) {
   if (opts.watch) initWatcher(vm);
 }
 
-function initData(vm: Component) {
+function initData(vm: vueInstance) {
   let data = vm.$options.data;
   let methods = vm.$options.methods;
 
@@ -64,7 +64,7 @@ const computedOpts: watcherOptions = {
   lazy: true
 }
 
-function initComputed(vm: Component) {
+function initComputed(vm: vueInstance) {
   const watchers: { [key: string]: Watcher }
     = vm._computedWatcher
     = Object.create(null);
@@ -89,7 +89,7 @@ function initComputed(vm: Component) {
 }
 
 function defineComputed(
-  vm: Component,
+  vm: vueInstance,
   key: string,
   value: Function | { get?: Function; set?: (v: any) => void }
 ) {
@@ -110,7 +110,7 @@ function defineComputed(
 
 function createComputedGetter(key: string) {
   return function () {
-    const vm: Component = this;
+    const vm = this;
     const watcher = vm._computedWatcher && vm._computedWatcher[key];
     if (watcher) {
       if (watcher.dirty) {
@@ -126,7 +126,7 @@ function createComputedGetter(key: string) {
 }
 
 
-function initWatcher(vm: Component) {
+function initWatcher(vm: vueInstance) {
   const watcher = vm.$options.watch || {};
   let key: string;
   let handler: string | Function | userWatcherOpts;
@@ -145,7 +145,7 @@ function initWatcher(vm: Component) {
   }
 }
 
-function getData(dataFn: Function, vm: Component): any {
+function getData(dataFn: Function, vm: vueInstance): any {
   try {
     return dataFn.call(vm);
   } catch (e) {
@@ -153,7 +153,7 @@ function getData(dataFn: Function, vm: Component): any {
   }
 }
 
-function initMethods(vm: Component) {
+function initMethods(vm: vueInstance) {
   const methods = vm.$options.methods;
   if (!isPlainObject(methods)) {
     console.error(`methods must be object`);
@@ -169,7 +169,7 @@ function initMethods(vm: Component) {
 }
 
 function createWatcher(
-  vm: Component,
+  vm: vueInstance,
   expOrFn: string | Function,
   handler: string | Function | userWatcherOpts,
   option?: userWatcherOpts
@@ -185,7 +185,7 @@ function createWatcher(
   return vm.$watch(expOrFn, handler, option);
 }
 
-export function stateMixin(Vue: Function) {
+export function stateMixin(Vue: typeof vueInstance) {
   const dataDef: PropertyDescriptor = {};
   dataDef.get = function () {
     return this._data;
@@ -204,7 +204,7 @@ export function stateMixin(Vue: Function) {
     cb: string | Function | userWatcherOpts,
     option?: userWatcherOpts
   ) {
-    const vm: Component = this;
+    const vm = this;
     if (isPlainObject(cb)) {
       return createWatcher(vm, expOrFn, cb, option);
     }

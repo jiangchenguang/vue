@@ -1,3 +1,4 @@
+import vueInstance from '../../core/instance/index';
 import config from "../config";
 import {
   nextTick
@@ -7,9 +8,8 @@ import {
   del,
 } from "src/core/observer/index";
 import { parse } from "src/compiler/parse/index";
-import { GlobalAPI } from "types/globalAPI";
 
-export function initGlobalAPI(Vue: GlobalAPI) {
+export function initGlobalAPI(Vue: typeof vueInstance) {
   // config
   const configDef:PropertyDescriptor = {};
   configDef.get = () => config;

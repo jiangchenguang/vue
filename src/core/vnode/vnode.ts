@@ -1,10 +1,10 @@
-import { Component } from "types/component";
+import Vue from "src/core/index";
 
 export default class VNode {
   tag?: string;
   data: VNodeData;
   children?: VNode[];
-  context?: Component;
+  context?: Vue;
   text?: string;
   elm?: Node;
   key?: string;
@@ -17,7 +17,7 @@ export default class VNode {
     data?: VNodeData,
     children?: VNode[],
     text?: string,
-    context?: Component,
+    context?: Vue,
   ) {
     this.tag = tag;
     this.data = data;

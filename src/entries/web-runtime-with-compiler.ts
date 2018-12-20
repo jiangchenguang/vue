@@ -1,14 +1,11 @@
-import VueCtor from "./web-runtime";
-import { Component } from "types/component";
-import { mountComponent } from "src/core/instance/lifeCycle";
+import Vue from "./web-runtime";
 import { compileToFunction } from 'src/platforms/web/compiler/index';
 import { query } from "src/platforms/web/util/index";
-import Vue from "types/vue";
 
-const mount = VueCtor.prototype.$mount;
-VueCtor.prototype.$mount = function (
+const mount = Vue.prototype.$mount;
+Vue.prototype.$mount = function (
   el?: string | HTMLElement
-): Component {
+): Vue {
   el = el && query(el);
   if (!this.$options.render) {
     const options = this.$options;
@@ -44,4 +41,4 @@ function getOuterHtml(el: HTMLElement) {
   }
 }
 
-export default VueCtor;
+export default Vue;

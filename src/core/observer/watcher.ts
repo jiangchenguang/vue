@@ -1,3 +1,4 @@
+import Vue from "src/core/index";
 import Dep, { pushTarget, popTarget } from "./dep";
 import { queueWatcher } from "./scheduler";
 import {
@@ -7,7 +8,6 @@ import {
   remove,
 } from "src/core/util/index";
 import { Observer } from "src/core/observer/index";
-import { Component } from "types/component";
 
 let uid: number = 0;
 
@@ -32,7 +32,7 @@ export interface watcherOptions {
 
 export default class Watcher {
   id: number;
-  vm: Component;
+  vm: Vue;
   getter: Function;
   cb: Function;
   deep: boolean;
@@ -48,7 +48,7 @@ export default class Watcher {
   active: boolean;
 
   constructor(
-    vm: Component,
+    vm: Vue,
     expression: string | Function,
     cb?: Function,
     options?: watcherOptions

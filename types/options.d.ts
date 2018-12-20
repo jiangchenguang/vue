@@ -1,5 +1,5 @@
+import Vue from 'src/core/instance/index';
 import VNode from "src/core/vnode/vnode";
-import { Component } from "types/component";
 
 export type ComponentOptions = {
   data?: object | Function;
@@ -19,7 +19,7 @@ export type ComponentOptions = {
   beforeUpdate?: Function[];
   beforeDestroy?: Function[];
 
-  components?: { [index: string]: Component }
+  components?: { [index: string]: Vue }
 }
 
 

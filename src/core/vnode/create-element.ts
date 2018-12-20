@@ -1,13 +1,13 @@
+import Vue from "src/core/index";
 import VNode, { createEmptyVNode } from "./vnode";
 import { normalizeChildren } from "./helper/normalize-children";
 import { resolveAsset, isPrimitive } from "src/core/util/index";
-import { Component } from "types/component";
 
 const SIMPLE_NORMALIZE = 1;
 const ALWAYS_NORMALIZE = 2;
 
 export function createElement(
-  context: Component,
+  context: Vue,
   tag: any,
   data: any,
   children: any,
@@ -26,7 +26,7 @@ export function createElement(
 }
 
 function _createElement(
-  context: Component,
+  context: Vue,
   tag?: string,
   data?: VNodeData,
   children?: any,

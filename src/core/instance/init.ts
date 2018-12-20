@@ -1,15 +1,15 @@
+import vueInstance from "src/core/index";
 import { initLifeCycle, callHook } from "./lifeCycle";
 import { initRender } from "./render";
 import { initState } from "./state";
 import { mergeOptions } from "../util/index";
-import { Component } from "types/component";
 import { ComponentOptions } from "types/options";
 
 let uid = 0;
 
-export function initMixin(Vue: Function) {
+export function initMixin(Vue: typeof vueInstance) {
   Vue.prototype._init = function (options: ComponentOptions = {}) {
-    const vm: Component = this;
+    const vm: vueInstance = this;
     vm._uid = uid++;
     vm._isVue = true;
 
