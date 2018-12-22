@@ -14,12 +14,18 @@ class Vue {
     this._init(options);
   }
 
+  // static properties
+  static config: Config;
+
   // static methods
+  static cid: number;
+  static super?: typeof Vue;
+  static options?: ComponentOptions;
+  static extend: (extendOptions?: { [key: string]: any }) => typeof Vue;
   static nextTick: (cb?: Function, obj?: object) => void;
   static set: (obj: any, key: string | number, val: any) => void;
   static delete: (obj: any, key: string | number) => void;
   static parse: (template: string, options: CompilerOptions) => ASTElement;
-  static config: Config;
 
   // public methods
   $mount: (el: string | Element) => void;

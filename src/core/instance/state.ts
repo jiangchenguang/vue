@@ -57,7 +57,7 @@ function initData(vm: vueInstance) {
     proxy(vm, "_data", keys[len]);
   }
 
-  observe(vm.$options.data, true);
+  observe(data, true);
 }
 
 const computedOpts: watcherOptions = {

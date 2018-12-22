@@ -17,10 +17,52 @@ describe("options - data", function (){
     }).then(done)
   })
 
-  xit('should merge data properly', function (){
+  it('should merge data properly', function (){
+    const Test = Vue.extend({
+      data (){
+        return {
+          a: 1
+        }
+      }
+    })
+    let vm     = new Test({
+      data: {
+        b: 2
+      }
+    })
+    expect(vm.a).toBe(1);
+    expect(vm.b).toBe(2);
+    vm = new Test();
+    expect(vm.a).toBe(1);
+    const Extended = Test.extend({});
+    vm             = new Extended();
+    expect(vm.a).toBe(1);
+
+    const WithObject = Vue.extend({
+      data (){
+        return {
+          obj: {
+            a: 1
+          }
+        }
+      }
+    })
+    vm = new WithObject({
+      data: {
+        obj: {
+          b: 2
+        }
+      }
+    })
+    expect(vm.obj.a).toBe(1);
+    expect(vm.obj.b).toBe(2);
   })
 
-  xit('should warn no-function during extend', function (){
+  it('should warn no-function during extend', function (){
+    Vue.extend({
+      data: {a: 1}
+    })
+    expect('the "data" option should be a function').toHaveBeenWarned();
   })
 
   it('should warn non object return', function (){

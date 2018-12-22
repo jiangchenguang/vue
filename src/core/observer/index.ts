@@ -99,7 +99,11 @@ function defineReactive(obj: any, key: string, val: any): void {
   })
 }
 
-export function set(obj: any, key: string | number, val: any): void {
+export function set(
+  obj: { [key: string]: any } | any[],
+  key: string | number,
+  val: any
+): void {
   if (Array.isArray(obj)) {
     obj.length = Math.max(obj.length, <number>key);
     obj.splice(<number>key, 1, val);
@@ -123,7 +127,6 @@ export function set(obj: any, key: string | number, val: any): void {
 
   defineReactive(ob.value, <string>key, val);
   ob.dep.notify();
-  return;
 }
 
 export function del(obj: any, key: string | number): void {

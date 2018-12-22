@@ -1,17 +1,15 @@
 import vueInstance from '../../core/instance/index';
+import { initExtend } from "./extend";
 import config from "../config";
 import {
   nextTick
 } from "src/core/util/index";
-import {
-  set,
-  del,
-} from "src/core/observer/index";
+import { set, del } from "src/core/observer/index";
 import { parse } from "src/compiler/parse/index";
 
 export function initGlobalAPI(Vue: typeof vueInstance) {
   // config
-  const configDef:PropertyDescriptor = {};
+  const configDef: PropertyDescriptor = {};
   configDef.get = () => config;
   configDef.set = () => {
     console.error('Do not replace Vue config object!');
@@ -22,4 +20,6 @@ export function initGlobalAPI(Vue: typeof vueInstance) {
   Vue.set = set;
   Vue.delete = del;
   Vue.parse = parse;
+
+  initExtend(Vue);
 }
