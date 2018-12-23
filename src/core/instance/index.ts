@@ -17,10 +17,13 @@ class Vue {
   // static properties
   static cid: number;
   static super?: typeof Vue;
+  static superOpt?: { [key: string]: any };
+  static extendOpt?: { [key: string]: any };
   static options?: ComponentOptions;
   static config: Config;
 
   // static methods
+  static mixin: (option?: any) => void;
   static extend: (extendOptions?: { [key: string]: any }) => typeof Vue;
   static nextTick: (cb?: Function, obj?: object) => void;
   static set: (obj: any, key: string | number, val: any) => void;

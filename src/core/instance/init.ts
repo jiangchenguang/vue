@@ -37,5 +37,14 @@ export function initMixin(Vue: vueConstructor) {
 }
 
 function resolveConstructorOptions(Ctor: vueConstructor) {
-  return Ctor.options;
+  let options = Ctor.options;
+  if (Ctor.super) {
+    const superOpt = Ctor.superOpt;
+    if (superOpt != Ctor.super.options) {
+      // 说明父类的options已经修改了
+      Ctor.superOpt = Ctor.super.options;
+      options = Ctor.options = mergeOptions(Ctor.superOpt, Ctor.extendOpt);
+    }
+  }
+  return options;
 }

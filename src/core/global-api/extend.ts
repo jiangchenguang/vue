@@ -29,6 +29,8 @@ export function initExtend(Vue: vueConstructor) {
     );
     Sub.extend = _super.extend;
 
+    Sub.superOpt = _super.options;
+    Sub.extendOpt = extendOption;
     cachedCtor[_super.cid] = Sub;
     return Sub;
   }

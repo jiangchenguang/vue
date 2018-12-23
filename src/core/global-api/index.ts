@@ -1,4 +1,5 @@
 import vueInstance from '../../core/instance/index';
+import { initMixin } from "./mixin";
 import { initExtend } from "./extend";
 import config from "../config";
 import {
@@ -21,5 +22,6 @@ export function initGlobalAPI(Vue: typeof vueInstance) {
   Vue.delete = del;
   Vue.parse = parse;
 
+  initMixin(Vue);
   initExtend(Vue);
 }
