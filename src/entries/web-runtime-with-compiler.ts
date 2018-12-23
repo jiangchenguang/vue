@@ -41,4 +41,6 @@ function getOuterHtml(el: HTMLElement) {
   }
 }
 
+Vue.compile = compileToFunction;
+
 export default Vue;

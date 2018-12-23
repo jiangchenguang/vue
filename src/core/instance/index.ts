@@ -2,11 +2,11 @@ import { initMixin } from "./init";
 import { stateMixin } from "./state";
 import { lifeCycleMixin } from "./lifeCycle";
 import { renderMixin } from "./render";
-import { ComponentOptions } from "types/options";
 import { PatchFunction } from "types/patch";
 import VNode from "src/core/vnode/vnode";
 import Watcher, { userWatcherOpts } from "src/core/observer/watcher";
-import { ASTElement, CompilerOptions } from "types/compilerOptions";
+import { ComponentOptions } from "types/options";
+import { ASTElement, CompilerOptions, renderFn } from "types/compilerOptions";
 import { Config } from "src/core/config";
 
 class Vue {
@@ -15,17 +15,18 @@ class Vue {
   }
 
   // static properties
-  static config: Config;
-
-  // static methods
   static cid: number;
   static super?: typeof Vue;
   static options?: ComponentOptions;
+  static config: Config;
+
+  // static methods
   static extend: (extendOptions?: { [key: string]: any }) => typeof Vue;
   static nextTick: (cb?: Function, obj?: object) => void;
   static set: (obj: any, key: string | number, val: any) => void;
   static delete: (obj: any, key: string | number) => void;
   static parse: (template: string, options: CompilerOptions) => ASTElement;
+  static compile: (template: string) => { render: renderFn };
 
   // public methods
   $mount: (el: string | Element) => void;

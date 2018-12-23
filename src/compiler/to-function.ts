@@ -1,10 +1,13 @@
-import { Compile, CompilerOptions } from "types/compilerOptions";
+import { Compile, CompilerOptions, renderFn } from "types/compilerOptions";
 
-function createFunction(str: string): Function {
+
+function createFunction(str: string): renderFn {
   try {
+    // @ts-ignore
     return new Function(str);
   } catch (e) {
   }
+  // @ts-ignore
   return function () {
   };
 }

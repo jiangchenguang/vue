@@ -7,9 +7,10 @@ type CompilerModule = {
   genData?: genDataFunction;
 }
 
+type renderFn = (h: () => VNode) => VNode;
 type baseCompiler = (template: string, options?: CompilerOptions) => { ast: ASTNode, render: string };
 export type Compile = (template: string, options?: CompilerOptions) => { ast: ASTNode, render: string };
-export type CreateCompiler = (baseOption: CompilerOptions) => { compile: Compile, compileToFunction: Function };
+export type CreateCompiler = (baseOption: CompilerOptions) => { compile: Compile, compileToFunction: (template: string) => { render: renderFn } };
 export type CreateCompilerCreator = (fn: baseCompiler) => CreateCompiler;
 
 export type CompilerOptions = {
