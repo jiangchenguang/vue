@@ -1,6 +1,6 @@
 import config from "../config";
-import VNode from "src/core/vnode/vnode";
-import { BackEnd, modulePathFunc, NodeOpts } from "types/patch";
+import VNode, { createEmptyVNode } from "src/core/vnode/vnode";
+import { BackEnd, modulePathFunc } from "types/patch";
 import { isPrimitive } from "src/shared/util";
 
 const hooks = ["create", "update"];
@@ -43,9 +43,21 @@ export function createPatchFunction(backEnd: BackEnd) {
     }
   }
 
+  function emptyNodeAt(elm: Element) {
+    return new VNode(nodeOpts.tagName(elm), {}, [], null, null, null, elm);
+  }
+
   function invokeCreateHooks(vnode: VNode) {
     for (let i = 0; i < cbs.create.length; i++) {
       cbs.create[i](emptyVnode, vnode);
+    }
+  }
+
+  function invokeDestroyHooks(vnode: VNode) {
+    let i: any;
+    const data = vnode.data;
+    if (isDef(i = data.hook) && isDef(i = i.destroy)) {
+      i(vnode);
     }
   }
 
@@ -67,6 +79,11 @@ export function createPatchFunction(backEnd: BackEnd) {
 
     const elm = vnode.elm = oldVnode.elm;
 
+    let i: any;
+    if ((i = vnode.data) && (i = i.hook) && (i = i.prePatch)) {
+      i(oldVnode, vnode);
+    }
+
     if (isDef(vnode.data)) {
       for (let i = 0; i < cbs.update.length; i++) {
         cbs.update[i](oldVnode, vnode);
@@ -80,7 +97,7 @@ export function createPatchFunction(backEnd: BackEnd) {
         if (isDef(oldVnode.text)) nodeOpts.setTextContent(elm, "");
         addVnodes(<Element>elm, null, ch, 0, ch.length - 1);
       } else if (isDef(oldCh)) {
-        removeVnodes(oldCh, 0, oldCh.length - 1);
+        removeVnodes(elm, oldCh, 0, oldCh.length - 1);
       } else if (isDef(oldVnode.text)) {
         nodeOpts.setTextContent(elm, "");
       }
@@ -155,7 +172,7 @@ export function createPatchFunction(backEnd: BackEnd) {
       let refElm = isUndef(ch[newEndIdx + 1]) ? null : ch[newEndIdx + 1].elm;
       addVnodes(parentElm, refElm, ch, newStartIdx, newEndIdx);
     } else {
-      removeVnodes(oldCh, oldStartIdx, oldEndIdx);
+      removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx);
     }
   }
 
@@ -165,16 +182,23 @@ export function createPatchFunction(backEnd: BackEnd) {
     }
   }
 
-  function removeVnodes(vnodes: VNode[], startIdx: number, endIdx: number) {
+  function removeVnodes(parentElm: Node, vnodes: VNode[], startIdx: number, endIdx: number) {
     for (let i = startIdx; i <= endIdx; i++) {
-      let vnode = vnodes[i];
-      if (isDef(vnode)) {
-        removeElm(vnodes[i].elm);
+      let ch = vnodes[i];
+      if (isDef(ch)) {
+        if (isDef(ch.tag)) {
+          invokeDestroyHooks(ch);
+        }
+        removeElm(ch.elm);
       }
     }
   }
 
   function createElm(vnode: VNode, parentElm: Node, refElm: Node) {
+    if (createComponent(vnode, parentElm, refElm)) {
+      return;
+    }
+
     const children = vnode.children;
     const tag = vnode.tag;
     // 暂时只考虑nodeType 1 或者 3
@@ -189,10 +213,29 @@ export function createPatchFunction(backEnd: BackEnd) {
         invokeCreateHooks(vnode);
       }
       insert(parentElm, vnode.elm, refElm);
+    } else if (vnode.isComment) {
+      vnode.elm = nodeOpts.createComment(vnode.text);
+      insert(parentElm, vnode.elm, refElm);
     } else {
       vnode.elm = nodeOpts.createTextNode(vnode.text);
       insert(parentElm, vnode.elm, refElm);
     }
+  }
+
+  function createComponent(vnode: VNode, parentElm: Node, refElm: Node) {
+    let i: any;
+    if ((i = vnode.data) && (i = i.hook) && (i = i.init)) {
+      i(vnode, parentElm, refElm);
+      if (vnode.componentInstance) {
+        initComponent(vnode);
+        return true;
+      }
+    }
+  }
+
+  function initComponent(vnode: VNode) {
+    vnode.elm = vnode.componentInstance.$el;
+    invokeCreateHooks(vnode);
   }
 
   function removeElm(elm: Node) {
@@ -212,15 +255,55 @@ export function createPatchFunction(backEnd: BackEnd) {
     }
   }
 
-  return function patch(oldVnode: VNode, vnode: VNode, parentElm: Element, refEle: Node): Node | void {
+  return function patch(oldVnode: VNode | Element, vnode: VNode, parentElm: Element, refEle: Node): Node | void {
     if (isUndef(vnode)) {
       return;
     }
 
     if (!oldVnode) {
+      /**
+       * $mount()函数没有带参数时
+       * 直接依据vnode生成真实节点
+       */
       createElm(vnode, parentElm, refEle);
     } else {
-      patchVnode(oldVnode, vnode);
+      const isRealElement = isDef((<Element>oldVnode).nodeType);
+      if (!isRealElement && sameVnode(<VNode>oldVnode, vnode)) {
+        /**
+         * 不是真实节点，且相同的element元素
+         * 就直接打补丁
+         */
+        patchVnode(<VNode>oldVnode, vnode);
+      } else {
+        /**
+         * 挂载到一个真实的节点上
+         */
+        if (isRealElement) {
+          oldVnode = emptyNodeAt(<Element>oldVnode);
+        }
+        const elm = (<VNode>oldVnode).elm;
+        const parentElm = nodeOpts.parentNode(<Element>elm);
+
+        createElm(vnode, parentElm, nodeOpts.nextSibling(elm));
+
+        if (vnode.parent) {
+          let ancestor = vnode.parent;
+          while (ancestor) {
+            ancestor.elm = vnode.elm;
+            ancestor = ancestor.parent;
+          }
+
+          for (let i = 0; i < cbs.create.length; i++) {
+            cbs.create[i](emptyVnode, vnode.parent);
+          }
+        }
+
+        if (isDef(parentElm)) {
+          removeVnodes(parentElm, [<VNode>oldVnode], 0, 0);
+        } else if ((<VNode>oldVnode).tag) {
+          invokeDestroyHooks(<VNode>oldVnode);
+        }
+      }
     }
 
     return vnode.elm;

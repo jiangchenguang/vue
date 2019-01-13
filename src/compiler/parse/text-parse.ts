@@ -14,7 +14,7 @@ export function parseText(text: string) {
     pos = match.index;
     // text
     if (pos > lastIndex) {
-      token.push(text.slice(lastIndex, pos));
+      token.push(JSON.stringify(text.slice(lastIndex, pos)));
     }
 
     token.push(`_s(${match[1].trim()})`);

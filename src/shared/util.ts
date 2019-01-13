@@ -67,6 +67,11 @@ export function no() {
 export function noop() {
 }
 
+const hyphenateRE = /([^-])([A-Z])/g;
+export function hyphenate(str: string){
+  return str.replace(hyphenateRE, '$1-$2').toLocaleLowerCase();
+}
+
 export function bind(fn: Function, contenxt: object): Function {
   return function (a: any) {
     let len = arguments.length;

@@ -1,7 +1,7 @@
 import Vue from "src/core/index";
 import { set } from "../observer/index";
 import { hasOwn, isPlainObject, camelize, capitalize, extend } from "src/shared/util";
-import { ComponentOptions } from "types/options";
+import { ComponentOptions, VueCtorOptions } from "types/options";
 import { LIFE_CYCLE_HOOKS } from "src/shared/constant";
 
 export function resolveAsset(
@@ -123,17 +123,50 @@ strategies.methods = strategies.computed =
     extend(res, parent);
     extend(res, child);
     return res;
+  };
+
+function normalizeProps(options: { [key: string]: any }) {
+  const props = options.props;
+  if (!props) return;
+  const res: { [key: string]: any } = {};
+
+  let key: string, camelizeKey: string, value: string;
+  if (Array.isArray(props)) {
+
+    let len = props.length;
+    while (len--) {
+      key = props[len];
+      if (typeof key === 'string') {
+        camelizeKey = camelize(key);
+        res[camelizeKey] = {type: null};
+      }
+    }
+  } else if (isPlainObject(props)) {
+    for (key in props) {
+      value = props[key];
+      camelizeKey = camelize(key);
+      res[camelizeKey] = isPlainObject(value)
+        ? value
+        : {type: value}
+    }
   }
 
-export function mergeOptions(
-  parent: ComponentOptions,
-  child: ComponentOptions,
-  vm?: Vue
-) {
-  let key;
-  let options: { [key: string]: any } = {};
+  options.props = res;
+}
 
-  parent = parent || {};
+export function mergeOptions(
+  parent: VueCtorOptions | ComponentOptions,
+  child: object,
+  vm?: Vue
+): ComponentOptions {
+  let key;
+  // let options: { [key: string]: any } = {};
+  // @ts-ignore
+  const options: ComponentOptions = {};
+
+  normalizeProps(child);
+
+  // parent = parent || {}
   for (key in parent) {
     options[key] = mergeField(parent, child, vm, key);
   }

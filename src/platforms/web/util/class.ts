@@ -1,8 +1,40 @@
 import VNode from "src/core/vnode/vnode";
-import { isObject } from "src/shared/util";
+import { isDef, isObject } from "src/shared/util";
+import { VNodeData } from "types/vnode";
 
 export function genClassFromVnode(vnode: VNode): string {
-  return genClassFromData(vnode.data);
+  let data: {
+    staticClass?: string;
+    class?: any;
+  } = vnode.data;
+
+
+  let childVnode = vnode;
+  while (isDef(childVnode.componentInstance)) {
+    childVnode = vnode.componentInstance._vnode;
+    data = mergeClass(childVnode.data, data);
+  }
+
+  return renderClass(data.staticClass, data.class);
+}
+
+function mergeClass(child: VNodeData, parent: VNodeData): {
+  staticClass?: string;
+  class?: any;
+} {
+  return {
+    staticClass: concat(child.staticClass, parent.staticClass),
+    class: isDef(child.class)
+      ? [child.class, parent.class]
+      : parent.class
+  }
+}
+
+function renderClass(staticClass: string, dynamicClass: any): string {
+  if (staticClass || dynamicClass) {
+    return concat(staticClass, stringifyClass(dynamicClass));
+  }
+  return '';
 }
 
 function genClassFromData(data: VNodeData): string {

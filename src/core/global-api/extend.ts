@@ -24,7 +24,7 @@ export function initExtend(Vue: vueConstructor) {
     Sub.cid = cid++;
     Sub.super = this;
     Sub.options = mergeOptions(
-      _super.options || {},
+      _super.options,
       extendOption,
     );
     Sub.extend = _super.extend;

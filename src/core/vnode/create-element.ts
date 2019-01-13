@@ -1,8 +1,10 @@
 import Vue from "src/core/index";
 import VNode, { createEmptyVNode } from "./vnode";
-import { normalizeChildren } from "./helper/normalize-children";
-import { isPrimitive } from "src/core/util/index";
+import { normalizeChildren, extractPropsForVnode } from "./helper/index";
 import { resolveAsset } from "src/core/util/options";
+import { createComponent } from "src/core/vnode/create-component";
+import { VNodeData } from "types/vnode";
+import { isDef, isPrimitive } from "src/core/util/index";
 
 const SIMPLE_NORMALIZE = 1;
 const ALWAYS_NORMALIZE = 2;
@@ -44,11 +46,13 @@ function _createElement(
     children = normalizeChildren(children);
   }
 
-  // todo 在option没有合并前临时附加components属性
-  context.$options.components || (context.$options.components = {});
-  // if ((Ctor = resolveAsset(context.$options, "components", tag))) {
-  //
-  // }
+  data = data || {};
 
-  return new VNode(tag, data, children, undefined, context);
+
+  if ((Ctor = resolveAsset(context.$options, "components", tag))) {
+    vnode = createComponent(Ctor, data, context, tag);
+  } else {
+    vnode = new VNode(tag, data, children, undefined, context);
+  }
+  return vnode;
 }

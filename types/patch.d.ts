@@ -10,11 +10,14 @@ export type BackEnd = {
 export type NodeOpts = {
   createElement: (tagName: string, vnode: VNode) => HTMLElement;
   createTextNode: (text: string) => Text;
+  createComment: (text?: string) => Comment;
   insertBefore: (parent: Node, newNode: Node, refNode: Node) => void;
   appendChild: (parent: Node, newNode: Node) => void;
   removeChild: (node: Node, child: Node) => void;
   nextSibling: (node: Node) => Node;
   setTextContent: (node: Node, text: string) => void;
+  tagName: (node: Element) => string;
+  parentNode: (node: Element) => Node;
 }
 
 export type Modules = oneModule[];

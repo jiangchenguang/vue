@@ -10,14 +10,14 @@ import { ASTElement, CompilerOptions, renderFn } from "types/compilerOptions";
 import { Config } from "src/core/config";
 
 class Vue {
-  constructor(options?: ComponentOptions) {
+  constructor(options?: object) {
     this._init(options);
   }
 
   // static properties
   static cid: number;
   static super?: typeof Vue;
-  static superOpt?: { [key: string]: any };
+  static superOpt?: ComponentOptions;
   static extendOpt?: { [key: string]: any };
   static options?: ComponentOptions;
   static config: Config;
@@ -30,9 +30,10 @@ class Vue {
   static delete: (obj: any, key: string | number) => void;
   static parse: (template: string, options: CompilerOptions) => ASTElement;
   static compile: (template: string) => { render: renderFn };
+  static component: (id: string, options?: Function | Object) => void;
 
   // public methods
-  $mount: (el: string | Element) => void;
+  $mount: (el?: string | Element) => void;
   $forceUpdate: () => void;
   $destroy: () => void;
   $createElement: (tag: any, data: any, children: any, normalizeType: any) => VNode;
@@ -45,13 +46,17 @@ class Vue {
   $el: HTMLElement;
   $data: Object;
   $options: ComponentOptions;
+  $vnode: VNode;  // parent vnode
+  $parent: Vue;
+  $children: Vue[];
 
   // private properties
   _uid: number;
   _isVue: true;
+  _props: { [key: string]: any };
   _data: { [key: string]: any };
   _renderProxy: this;
-  _vnode: VNode;
+  _vnode: VNode;  // 生成的虚拟dom
   _watcher: Watcher;
   _watchers: Watcher[];
   _computedWatcher: { [key: string]: Watcher };
@@ -59,7 +64,7 @@ class Vue {
   _isBeingDestroyed: boolean;
   _isDestroyed: boolean;
 
-  _init: (options?: ComponentOptions) => void;
+  _init: (options?: object) => void;
   _render: () => VNode;
   _update: (vnode: VNode) => void;
   __patch__: PatchFunction;

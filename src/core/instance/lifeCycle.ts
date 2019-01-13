@@ -2,9 +2,20 @@ import vueInstance from "src/core/index";
 import Watcher from "src/core/observer/watcher";
 import VNode, { createEmptyVNode } from "src/core/vnode/vnode";
 import { lifeCycleHooks } from "src/shared/constant";
-import { Observer } from "src/core/observer/index";
+import { Observer, observeState } from "src/core/observer/index";
+import { VNodeData } from "types/vnode";
+import { ComponentOptions } from "types/options";
+import { remove } from "src/shared/util";
+
+export let activeInstance: vueInstance = null;
 
 export function initLifeCycle(vm: vueInstance) {
+  if (vm.$options.parent) {
+    vm.$parent = vm.$options.parent;
+    vm.$parent.$children.push(vm);
+  }
+  vm.$children = [];
+
   vm._watcher = null;
   vm._isMounted = false;
   vm._isBeingDestroyed = false;
@@ -18,11 +29,22 @@ export function lifeCycleMixin(Vue: typeof vueInstance) {
       callHook(vm, 'beforeUpdate');
     }
     const prevNode = vm._vnode;
+    const prevInstance = activeInstance;
+    activeInstance = vm;
     vm._vnode = vnode;
-    vm.$el = vm.__patch__(prevNode, vnode, null, null);
+    if (!prevNode) {
+      vm.$el = vm.__patch__(vm.$el, vnode, vm.$options._parentElm, vm.$options._refElm);
+    } else {
+      vm.$el = vm.__patch__(prevNode, vnode);
+    }
+    activeInstance = prevInstance;
+
+    if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
+      vm.$parent.$el = vm.$el;
+    }
   }
 
-  Vue.prototype.$forceUpdate = function() {
+  Vue.prototype.$forceUpdate = function () {
     const vm = this;
     if (vm._watcher) {
       vm._watcher.update();
@@ -37,6 +59,11 @@ export function lifeCycleMixin(Vue: typeof vueInstance) {
 
     callHook(vm, 'beforeDestroy');
     vm._isBeingDestroyed = true;
+    const parent = vm.$parent;
+    if (parent) {
+      remove(parent.$children, vm);
+    }
+
     if (vm._watcher) {
       vm._watcher.tearDown();
     }
@@ -59,6 +86,7 @@ export function lifeCycleMixin(Vue: typeof vueInstance) {
 export function mountComponent(vm: vueInstance, el?: HTMLElement) {
   vm.$el = el;
   if (!vm.$options.render) {
+    // @ts-ignore
     vm.$options.render = createEmptyVNode;
     if (vm.$options.template || vm.$options.el || el) {
       console.error(`you are using the running-only build of Vue`)
@@ -86,5 +114,26 @@ export function callHook(vm: vueInstance, hook: lifeCycleHooks) {
     for (let fn of hooks) {
       fn.call(vm);
     }
+  }
+}
+
+export function updateChildComponents(
+  vm: vueInstance,
+  propsData: {[key: string]: any},
+  parentVnode: VNode
+) {
+
+  vm.$vnode = parentVnode;
+  vm.$options._parentVnode = parentVnode; // set for hoc
+  if (vm._vnode) {
+    vm._vnode.parent = parentVnode; // set for patch
+  }
+
+  if (propsData && vm.$options.props) {
+    observeState.shouldObserve = false;
+    for (let key in vm._props) {
+      vm._props[key] = propsData[key];
+    }
+    observeState.shouldObserve = true;
   }
 }

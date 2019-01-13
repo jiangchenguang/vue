@@ -1,5 +1,8 @@
-declare interface VNodeData {
+import VNode from "src/core/vnode/vnode";
+
+export interface VNodeData {
   key?: string;
+  is?: string;
   attrs?: { [key: string]: any };
 
   staticClass?: string;
@@ -7,6 +10,7 @@ declare interface VNodeData {
 
   staticStyle?: { [key: string]: any };
   style?: { [key: string]: any };
+  hook?: {[key: string]: Function};
 
   domProps?: { [key: string]: any };
 

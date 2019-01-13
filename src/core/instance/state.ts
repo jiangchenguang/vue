@@ -1,5 +1,5 @@
 import vueInstance from "src/core/index";
-import { observe, set, del } from "src/core/observer/index";
+import { defineReactive, observe, set, del, observeState } from "src/core/observer/index";
 import Dep from "src/core/observer/dep";
 import Watcher, { userWatcherOpts, watcherOptions } from "src/core/observer/watcher";
 import { bind, hasOwn, isPlainObject, noop } from "src/shared/util";
@@ -23,6 +23,7 @@ export function proxy(target: any, sourceKey: string, key: any): void {
 export function initState(vm: vueInstance) {
   vm._watchers = [];
   const opts = vm.$options;
+  if (opts.props) initProps(vm);
   if (opts.methods) initMethods(vm);
   if (opts.data) {
     initData(vm);
@@ -32,6 +33,20 @@ export function initState(vm: vueInstance) {
 
   if (opts.computed) initComputed(vm);
   if (opts.watch) initWatcher(vm);
+}
+
+function initProps(vm: vueInstance) {
+  const propsData = vm.$options.propsData || {};
+  const propsOptions = vm.$options.props;
+  const props = vm._props = {};
+
+  observeState.shouldObserve = false;
+  for (let key in propsOptions) {
+    defineReactive(props, key, propsData[key]);
+
+    proxy(vm, '_props', key);
+  }
+  observeState.shouldObserve = true;
 }
 
 function initData(vm: vueInstance) {

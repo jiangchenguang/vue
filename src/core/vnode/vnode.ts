@@ -1,4 +1,11 @@
 import Vue from "src/core/index";
+import { VNodeData } from "types/vnode";
+
+export type VNodeComponentOptions = {
+  Ctor: typeof Vue;
+  propsData: { [key: string]: any };
+  tag: string
+}
 
 export default class VNode {
   tag?: string;
@@ -9,8 +16,10 @@ export default class VNode {
   elm?: Node;
   key?: string;
   ns?: string;
-
-  componentOptions: any;
+  componentOptions?: VNodeComponentOptions;
+  componentInstance?: Vue;
+  parent?: VNode;
+  isComment: boolean;
 
   constructor(
     tag?: string,
@@ -18,6 +27,8 @@ export default class VNode {
     children?: VNode[],
     text?: string,
     context?: Vue,
+    componentOptions?: VNodeComponentOptions,
+    elm?: Element,
   ) {
     this.tag = tag;
     this.data = data;
@@ -25,12 +36,17 @@ export default class VNode {
     this.text = text;
     this.context = context;
     this.key = data && data.key;
+    this.componentOptions = componentOptions;
+    this.componentInstance = undefined;
+    this.elm = elm;
+    this.parent = undefined;
   }
 }
 
-export function createEmptyVNode(){
+export function createEmptyVNode(text: string = '') {
   const node = new VNode();
-  node.text = "";
+  node.text = text;
+  node.isComment = true;
   return node;
 }
 

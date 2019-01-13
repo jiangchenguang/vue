@@ -1,5 +1,6 @@
 import { extend, toObject } from "src/shared/util";
 import VNode from "src/core/vnode/vnode";
+import { VNodeData } from "types/vnode";
 
 export function normalizeStyleBinding(bindingStyle: Object[] | Object): Object {
   if (Array.isArray(bindingStyle)) {

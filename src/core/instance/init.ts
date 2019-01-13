@@ -11,16 +11,20 @@ type vueConstructor = typeof Vue;
 let uid = 0;
 
 export function initMixin(Vue: vueConstructor) {
-  Vue.prototype._init = function (options: ComponentOptions = {}) {
+  Vue.prototype._init = function (options: ComponentOptions) {
     const vm: vueInstance = this;
     vm._uid = uid++;
     vm._isVue = true;
 
-    vm.$options = mergeOptions(
-      resolveConstructorOptions(vm.__proto__.constructor),
-      options,
-      vm
-    );
+    if (options && options._isComponent) {
+      createComponentConstructorOptions(vm, options);
+    } else {
+      vm.$options = mergeOptions(
+        resolveConstructorOptions(vm.__proto__.constructor),
+        options || {},
+        vm
+      );
+    }
 
     vm._renderProxy = vm;
 
@@ -36,7 +40,7 @@ export function initMixin(Vue: vueConstructor) {
   }
 }
 
-function resolveConstructorOptions(Ctor: vueConstructor) {
+export function resolveConstructorOptions(Ctor: vueConstructor) {
   let options = Ctor.options;
   if (Ctor.super) {
     const superOpt = Ctor.superOpt;
@@ -47,4 +51,19 @@ function resolveConstructorOptions(Ctor: vueConstructor) {
     }
   }
   return options;
+}
+
+/**
+ * 生成组件的构造函数选项
+ */
+function createComponentConstructorOptions(
+  Ctor: vueInstance,
+  options: ComponentOptions
+) {
+  let opt = Ctor.$options = Object.create(Ctor.__proto__.constructor.options);
+  opt.propsData = options.propsData;
+  opt.parent = options.parent;
+  opt._parentVnode = options._parentVnode;
+  opt._parentElm = options._parentElm;
+  opt._refElm = options._refElm;
 }

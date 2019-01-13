@@ -7,6 +7,10 @@ import {
   isPlainObject,
 } from "src/core/util/index";
 
+export const observeState = {
+  shouldObserve: true
+}
+
 export class Observer {
   value: any;
   dep: Dep;
@@ -50,7 +54,9 @@ export function observe(value: any, asRoot = false): Observer {
   let ob: Observer;
   if (hasOwn(value, "__ob__") && value.__ob__ instanceof Observer) {
     ob = value.__ob__;
-  } else if (!value._isVue &&
+  } else if (
+    observeState.shouldObserve &&
+    !value._isVue &&
     (Array.isArray(value) || isPlainObject(value)) &&
     Object.isExtensible(value)) {
     ob = new Observer(value);
@@ -63,7 +69,7 @@ export function observe(value: any, asRoot = false): Observer {
   return ob;
 }
 
-function defineReactive(obj: any, key: string, val: any): void {
+export function defineReactive(obj: any, key: string, val: any): void {
   let dep = new Dep();
 
   let property = Object.getOwnPropertyDescriptor(obj, key);
