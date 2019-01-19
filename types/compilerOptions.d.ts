@@ -1,5 +1,7 @@
 import VNode from "src/core/vnode/vnode";
 
+export type directiveFunction = (el: ASTElement, dir: directive) => void;
+
 type transformFromNodeFunction = (el: ASTElement) => void;
 type genDataFunction = (el: ASTElement) => string;
 type CompilerModule = {
@@ -33,6 +35,7 @@ export type ASTNode = ASTElement | ASTExpression | ASTText
 
 export type ASTIfConditions = { exp: string, block: ASTElement }[];
 export type ASTModifiers = { [name: string]: true };
+export type directive = { name: string, arg?: string, value?: string, modifiers?: ASTModifiers };
 export type ASTElementHandler = { value: string, modifiers?: ASTModifiers };
 export type ASTElement = {
   type: 1;
@@ -73,7 +76,7 @@ export type ASTElement = {
   styleBinding?: string;
 
   events?: { [name: string]: ASTElementHandler | ASTElementHandler[] },
-  directives?: { name: string, arg?: string, value?: string, modifiers?: ASTModifiers }[];
+  directives?: directive[];
 
   ns?: string;
   plain?: boolean;
@@ -82,6 +85,8 @@ export type ASTElement = {
   staticRoot?: boolean;
   staticInFor?: boolean;
   staticProcessed?: boolean;
+
+  wrapData?: (code: string) => string;
 }
 
 export type ASTExpression = {

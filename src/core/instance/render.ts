@@ -2,6 +2,7 @@ import vueInstance from "src/core/index";
 import { defineReactive } from "src/core/observer/index";
 import { createElement } from "src/core/vnode/create-element";
 import VNode, { createEmptyVNode, createTextVNode } from "src/core/vnode/vnode";
+import { bindObjectProps } from "src/core/vnode/helper/index";
 import { toString } from "src/shared/util";
 import { nextTick } from "../util/index";
 
@@ -39,4 +40,5 @@ export function renderMixin(Vue: typeof vueInstance) {
 
   Vue.prototype._s = toString;
   Vue.prototype._v = createTextVNode;
+  Vue.prototype._b = bindObjectProps;
 }

@@ -1,10 +1,11 @@
-import { ASTElement } from "types/compilerOptions";
 import { getAndRemoveAttr, getBindAttr } from "src/compiler/helper";
+import { parseStyleText } from "../../util/index";
+import { ASTElement } from "types/compilerOptions";
 
 function transformNode(el: ASTElement) {
   const staticStyle = getAndRemoveAttr(el, "style");
   if (staticStyle) {
-    el.staticStyle = JSON.stringify(staticStyle);
+    el.staticStyle = JSON.stringify(parseStyleText(staticStyle));
   }
   const styleBinding = getBindAttr(el, "style", false);
   if (styleBinding) {

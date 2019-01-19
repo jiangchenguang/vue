@@ -18,7 +18,9 @@ function updateAttrs(oldVnode: VNode, vnode: VNode) {
 
   for (let key in oldAttrs) {
     if (attrs[key] == null) {
-      elm.removeAttribute(key);
+      if (!isEnumerabledAttr(key)) {
+        elm.removeAttribute(key);
+      }
     }
   }
 }

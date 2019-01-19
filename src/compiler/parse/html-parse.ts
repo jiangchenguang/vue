@@ -119,7 +119,7 @@ export function parseHTML(html: string, options: ParseHTMLOptions) {
 
   function handleStartTag(execResult: startTagMatchResult) {
     // @ts-ignore
-    const unary = isUnaryTag[execResult.tagName];
+    const unary = isUnaryTag(execResult.tagName);
     if (!unary) {
       lastTag = execResult.tagName;
       stack.push(lastTag);

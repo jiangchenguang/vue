@@ -8,7 +8,7 @@ import {
   CompilerOptions,
   transformFromNodeFunction
 } from "types/compilerOptions";
-import { no } from "src/shared/util";
+import {camelize, no} from "src/shared/util";
 import {
   addAttr,
   addDirective,
@@ -21,7 +21,7 @@ import {
 const forAliasRE = /(.*?)\s+(?:in|of)\s+(.*)/;
 const forIteratorRE = /\((\{[^}]*\}|[^,]*),([^,]*)(?:,([^,]*))?\)/;
 const dirRE = /^v-|^:|^@/;
-const bindRE = /^v-bind|^:/;
+const bindRE = /^v-bind:|^:/;
 const onRE = /^v-on|^@/;
 const argRE = /:(.*)$/;
 const modifyRE = /\.[^\.]+/g;
@@ -264,7 +264,7 @@ function processRef(el: ASTElement) {
   }
 }
 
-function checkRefInFor(el: ASTElement){
+function checkRefInFor(el: ASTElement) {
   let curr = el;
   while (curr) {
     if (curr.for !== undefined) {
@@ -300,6 +300,7 @@ function processComponent(el: ASTElement) {
 function processAttrs(el: ASTElement) {
   let name: string;
   let value: string;
+  let isProp: boolean;
 
   if (el.attrsList) {
     for (let attr of el.attrsList) {
@@ -314,7 +315,14 @@ function processAttrs(el: ASTElement) {
 
         if (bindRE.test(name)) {
           name = name.replace(bindRE, "");
-          if (platformMustUseProp(el.tag, name, el.attrsMap.type)) {
+          isProp = false;
+          if (modifiers && modifiers.prop) {
+            isProp = true;
+            name = camelize(name);
+            if (name === 'innerHtml') name = 'innerHTML';
+          }
+
+          if (isProp || platformMustUseProp(el.tag, name, el.attrsMap.type)) {
             addProp(el, name, value);
           } else {
             addAttr(el, name, value);

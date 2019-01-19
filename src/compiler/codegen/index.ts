@@ -1,4 +1,5 @@
 import { genHandlers } from "./event";
+import { baseDirectives } from '../directives/index';
 import { isReservedTag } from "src/platforms/web/util/index";
 import { no } from "src/shared/util";
 import { pluckModuleFunction } from "src/compiler/helper";
@@ -10,6 +11,7 @@ import {
   ASTNode,
   ASTText,
   CompilerOptions,
+  directiveFunction,
   genDataFunction
 } from "types/compilerOptions";
 
@@ -120,6 +122,8 @@ function genSlot(el: ASTElement): string {
 function genData(el: ASTElement): string {
   let data = "{";
 
+  genDirectives(el);
+
   if (el.key) {
     data += `key:${el.key},`
   }
@@ -158,7 +162,24 @@ function genData(el: ASTElement): string {
 
   data = data.replace(/,$/, "") + "}";
 
+  if (el.wrapData) {
+    data = el.wrapData(data);
+  }
   return data;
+}
+
+function genDirectives(el: ASTElement) {
+  const dirs = el.directives;
+  if (!dirs) return;
+  let gen: directiveFunction;
+  let name: string;
+  for (let dir of dirs) {
+    name = dir.name;
+    gen = baseDirectives[name];
+    if (gen) {
+      gen(el, dir);
+    }
+  }
 }
 
 function genNode(el: ASTNode): string {
