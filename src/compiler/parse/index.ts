@@ -22,7 +22,7 @@ const forAliasRE = /(.*?)\s+(?:in|of)\s+(.*)/;
 const forIteratorRE = /\((\{[^}]*\}|[^,]*),([^,]*)(?:,([^,]*))?\)/;
 const dirRE = /^v-|^:|^@/;
 const bindRE = /^v-bind:|^:/;
-const onRE = /^v-on|^@/;
+const onRE = /^v-on:|^@/;
 const argRE = /:(.*)$/;
 const modifyRE = /\.[^\.]+/g;
 

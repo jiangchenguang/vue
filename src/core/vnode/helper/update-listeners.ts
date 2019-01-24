@@ -1,5 +1,18 @@
 import Vue from "src/core/index";
 
+function normalizeEvent(name: string): {
+  name: string,
+  capture: boolean
+} {
+  const capture: boolean = name.charAt(0) === '!';
+  name = capture ? name.slice(1) : name;
+
+  return {
+    name,
+    capture,
+  }
+}
+
 function createFnInvoker(fns: Function | Function[]): Function {
   function invoker() {
     const fns = invoker.fns;
@@ -26,7 +39,10 @@ export function updateListeners(
   let name: string;
   let cur: any;
   let old: any;
+  let event: { name: string; capture: boolean };
   for (name in on) {
+    event = normalizeEvent(name);
+
     cur = on[name];
     old = oldOn[name];
 
@@ -36,7 +52,7 @@ export function updateListeners(
       if (!cur.fns) {
         cur = on[name] = createFnInvoker(cur);
       }
-      add(name, cur);
+      add(event.name, cur, event.capture);
     } else if (cur !== old) {
       old.fns = cur;
       on[name] = old;

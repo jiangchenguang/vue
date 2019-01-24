@@ -12,7 +12,6 @@ const modifierCode: { [key: string]: string } = {
 export function genHandlers(events: { [name: string]: ASTElementHandler | ASTElementHandler[] }) {
   let data = "on:{";
   for (let name in events) {
-    // todo question 这里name为什使用双引号？
     data += `"${name}":${genHandler(name, events[name])},`;
   }
   return data.slice(0, -1) + "}";

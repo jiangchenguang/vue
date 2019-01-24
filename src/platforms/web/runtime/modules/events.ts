@@ -3,9 +3,9 @@ import VNode from "src/core/vnode/vnode";
 
 let target: Element;
 
-function add(event: string, handler: Function) {
+function add(event: string, handler: Function, capture: boolean) {
   // @ts-ignore
-  target.addEventListener(event, handler);
+  target.addEventListener(event, handler, capture);
 }
 
 function remove(event: string, handler: Function) {

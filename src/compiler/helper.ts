@@ -59,6 +59,11 @@ export function addHandler(
   value: string,
   modifiers?: ASTModifiers
 ) {
+  if (modifiers && modifiers.capture) {
+    delete modifiers.capture;
+    name = `!${name}`;
+  }
+
   let events = element.events || (element.events = {});
   let handler = events[name];
   let newHandler: ASTElementHandler = {value, modifiers};
