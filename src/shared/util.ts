@@ -68,7 +68,8 @@ export function noop() {
 }
 
 const hyphenateRE = /([^-])([A-Z])/g;
-export function hyphenate(str: string){
+
+export function hyphenate(str: string) {
   return str.replace(hyphenateRE, '$1-$2').toLocaleLowerCase();
 }
 
@@ -87,6 +88,17 @@ export function extend(to: any, from: any) {
     to[key] = from[key];
   }
   return to;
+}
+
+export function toArray(arr: ArrayLike<any>, start?: number): any[] {
+  let len: number, res: any[];
+  start = start || 0;
+  len = arr.length - start;
+  res = new Array(len);
+  while (len--) {
+    res[len] = arr[len + start];
+  }
+  return res;
 }
 
 export function toObject(arr: Object[]): Object {

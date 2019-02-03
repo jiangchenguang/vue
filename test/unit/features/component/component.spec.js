@@ -120,15 +120,15 @@ describe("component", function (){
   xit('parent content + v-if', function (){
   })
 
-  xit('props', function (){
+  it('props', function (){
     const vm = new Vue({
       data      : {
         foo: 1
       },
-      template  : `<test :foo='foo'></test>`,
+      template  : `<child :foo='foo'></child>`,
       components: {
-        test: {
-          props   : { foo: String },
+        child: {
+          props   : { foo: Number },
           template: `<span>{{foo}}</span>`,
         }
       }
@@ -207,6 +207,6 @@ describe("component", function (){
     }).then(done)
   })
 
-  xit('catch component render error and preseve previous vnode', function (){
+  xit('catch component render error and preserve previous vnode', function (){
   })
 })

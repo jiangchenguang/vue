@@ -64,7 +64,13 @@ export function addHandler(
     name = `!${name}`;
   }
 
-  let events = element.events || (element.events = {});
+  let events;
+  if (modifiers && modifiers.native) {
+    delete modifiers.native;
+    events = element.nativeEvents || (element.nativeEvents = {});
+  } else {
+    events = element.events || (element.events = {});
+  }
   let handler = events[name];
   let newHandler: ASTElementHandler = {value, modifiers};
   if (Array.isArray(handler)) {

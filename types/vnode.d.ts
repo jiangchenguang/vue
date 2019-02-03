@@ -10,9 +10,10 @@ export interface VNodeData {
 
   staticStyle?: { [key: string]: any };
   style?: { [key: string]: any };
-  hook?: {[key: string]: Function};
+  hook?: { [key: string]: Function };
 
   domProps?: { [key: string]: any };
 
-  on?: { [key: string]: any }
+  on?: { [key: string]: any };
+  nativeOn?: { [key: string]: any };
 }

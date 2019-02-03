@@ -152,6 +152,10 @@ function genData(el: ASTElement): string {
     data += `${genHandlers(el.events)},`
   }
 
+  if (el.nativeEvents) {
+    data += `${genHandlers(el.nativeEvents, true)},`
+  }
+
   if (el.slotTarget) {
     data += `slot:${el.slotTarget},`
   }

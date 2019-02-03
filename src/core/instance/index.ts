@@ -1,3 +1,4 @@
+import { eventMixin } from "./events";
 import { initMixin } from "./init";
 import { stateMixin } from "./state";
 import { lifeCycleMixin } from "./lifeCycle";
@@ -40,6 +41,9 @@ class Vue {
   $nextTick: (fn: Function) => void | Promise<any>;
   $set: (obj: any, key: string | number, val: any) => void;
   $delete: (obj: any, key: string | number) => void;
+  $on: (event: string, handle: Function) => void;
+  $off: (event?: string, handle?: Function) => void;
+  $emit: (event: string, ...args: any[]) => Vue;
   $watch: (key: string | Function, cb: string | userWatcherOpts | Function, options?: any) => void;
 
   // public properties
@@ -55,6 +59,7 @@ class Vue {
   _isVue: true;
   _props: { [key: string]: any };
   _data: { [key: string]: any };
+  _events: { [key: string]: Function[] };
   _renderProxy: this;
   _vnode: VNode;  // 生成的虚拟dom
   _watcher: Watcher;
@@ -78,6 +83,7 @@ class Vue {
   [key: string]: any;
 }
 
+eventMixin(Vue);
 initMixin(Vue);
 stateMixin(Vue);
 lifeCycleMixin(Vue);

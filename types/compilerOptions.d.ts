@@ -76,6 +76,7 @@ export type ASTElement = {
   styleBinding?: string;
 
   events?: { [name: string]: ASTElementHandler | ASTElementHandler[] },
+  nativeEvents?: { [name: string]: ASTElementHandler | ASTElementHandler[] },
   directives?: directive[];
 
   ns?: string;

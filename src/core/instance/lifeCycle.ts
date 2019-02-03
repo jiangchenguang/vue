@@ -6,6 +6,7 @@ import { Observer, observeState } from "src/core/observer/index";
 import { VNodeData } from "types/vnode";
 import { ComponentOptions } from "types/options";
 import { remove } from "src/shared/util";
+import { updateComponentListeners } from "src/core/instance/events";
 
 export let activeInstance: vueInstance = null;
 
@@ -119,7 +120,8 @@ export function callHook(vm: vueInstance, hook: lifeCycleHooks) {
 
 export function updateChildComponents(
   vm: vueInstance,
-  propsData: {[key: string]: any},
+  propsData: { [key: string]: any },
+  _parentListener: { [key: string]: Function | Function[] },
   parentVnode: VNode
 ) {
 
@@ -135,5 +137,11 @@ export function updateChildComponents(
       vm._props[key] = propsData[key];
     }
     observeState.shouldObserve = true;
+  }
+
+  if (_parentListener) {
+    const oldOn = vm.$options._parentListeners;
+    vm.$options._parentListeners = _parentListener;
+    updateComponentListeners(vm, _parentListener, oldOn);
   }
 }

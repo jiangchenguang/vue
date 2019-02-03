@@ -34,6 +34,7 @@ export interface ComponentOptions extends VueCtorOptions {
 
   _isComponent?: true,
   parent: Vue;
+  _parentListeners: { [key: string]: Function | Function[] };
   _parentVnode?: VNode,
   _parentElm?: HTMLElement,
   _refElm?: HTMLElement

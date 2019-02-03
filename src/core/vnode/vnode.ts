@@ -4,6 +4,7 @@ import { VNodeData } from "types/vnode";
 export type VNodeComponentOptions = {
   Ctor: typeof Vue;
   propsData: { [key: string]: any };
+  listener: { [key: string]: Function | Function[] },
   tag: string
 }
 

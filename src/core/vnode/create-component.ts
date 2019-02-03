@@ -25,9 +25,9 @@ const componentLifecycleHookList: { [key: string]: Function } = {
   prePatch: function (oldVnode: VNode, vnode: VNode) {
     const options = vnode.componentOptions;
     const child = vnode.componentInstance = oldVnode.componentInstance;
-    updateChildComponents(child, options.propsData, vnode);
+    updateChildComponents(child, options.propsData, options.listener, vnode);
   },
-  destroy: function(vnode: VNode) {
+  destroy: function (vnode: VNode) {
     if (!vnode.componentInstance._isDestroyed) {
       vnode.componentInstance.$destroy();
     }
@@ -45,6 +45,7 @@ function createComponentInstanceForVnode(
     _isComponent: true,
     propsData: componentOption.propsData,
     parent,
+    _parentListeners: componentOption.listener,
     _parentVnode: vnode,
     _parentElm: parentElm,
     _refElm: refElm
@@ -75,6 +76,7 @@ export function createComponent(
   let propsData = extractPropsForVnode(data, <typeof Vue>Ctor);
 
   let listener = data.on;
+  data.on = data.nativeOn;
 
   mergeHooks(data);
 
@@ -86,6 +88,7 @@ export function createComponent(
       // @ts-ignore
       Ctor,
       propsData,
+      listener,
       tag
     }
   );

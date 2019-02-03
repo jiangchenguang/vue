@@ -1,4 +1,5 @@
 import Vue from "src/core/index";
+import { initEvent } from "./events";
 import { initLifeCycle, callHook } from "./lifeCycle";
 import { initRender } from "./render";
 import { initState } from "./state";
@@ -28,6 +29,7 @@ export function initMixin(Vue: vueConstructor) {
 
     vm._renderProxy = vm;
 
+    initEvent(vm);
     initRender(vm);
     initLifeCycle(vm);
     callHook(vm, 'beforeCreate');
@@ -64,6 +66,7 @@ function createComponentConstructorOptions(
   opt.propsData = options.propsData;
   opt.parent = options.parent;
   opt._parentVnode = options._parentVnode;
+  opt._parentListeners = options._parentListeners;
   opt._parentElm = options._parentElm;
   opt._refElm = options._refElm;
 }

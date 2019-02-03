@@ -1,7 +1,6 @@
 import { ASTElementHandler } from "types/compilerOptions";
 
 const fnExpRE = /^\s*([\w$_]+|\([^\)]*?\))\s*=>|^function\s*\(/;  // a=> ()=> function(
-// todo question 应该是判断是否是对象路径的，但没完全看懂
 const simplePathRE = /^\s*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?']|\[".*?"]|\[\d+]|\[[A-Za-z_$][\w$]*])*\s*$/;
 
 const modifierCode: { [key: string]: string } = {
@@ -9,8 +8,8 @@ const modifierCode: { [key: string]: string } = {
   prevent: "$event.preventDefault();",
 }
 
-export function genHandlers(events: { [name: string]: ASTElementHandler | ASTElementHandler[] }) {
-  let data = "on:{";
+export function genHandlers(events: { [name: string]: ASTElementHandler | ASTElementHandler[] }, native?: boolean) {
+  let data = native ? 'nativeOn:{' : "on:{";
   for (let name in events) {
     data += `"${name}":${genHandler(name, events[name])},`;
   }
